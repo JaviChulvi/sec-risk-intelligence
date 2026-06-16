@@ -1,0 +1,8 @@
+data/
+.external/
+eval_runs/
+.pytest_cache/
+__pycache__/
+*.pyc
+.env
+*.egg-info/

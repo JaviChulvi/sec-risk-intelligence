@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sec-risk-intelligence"
+version = "0.1.0"
+description = "Evaluate LLM risk analysis on self-contained financial-report fixtures."
+requires-python = ">=3.10"
+dependencies = [
+  "requests",
+]
+
+[project.optional-dependencies]
+notebook = [
+  "matplotlib",
+  "pandas",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+pythonpath = ["."]
