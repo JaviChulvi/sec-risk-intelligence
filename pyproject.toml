@@ -12,6 +12,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+data-extraction = [
+  "beautifulsoup4>=4.8.2,<5",
+  "chardet<6",
+  "click>=7,<9",
+  "cssutils>=1.0.2",
+  "lxml>=4.9.4,<6",
+  "numpy>=1.26,<3",
+  "pandas",
+  "pathos>=0.2.9",
+  "requests",
+  "tqdm>=4.42.1",
+  "urllib3>=1.26.7,<3",
+]
 notebook = [
   "matplotlib",
   "pandas",

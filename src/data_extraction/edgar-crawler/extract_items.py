@@ -1052,21 +1052,25 @@ class ExtractItems:
         # Detect span elements and handle them depending on span type
         doc_report = self.handle_spans(doc_report, is_html=is_html)
 
+        def metadata_value(field: str) -> Any:
+            value = filing_metadata[field]
+            return None if pd.isna(value) else value
+
         # Prepare the JSON content with filing metadata
         json_content = {
-            "cik": filing_metadata["CIK"],
-            "company": filing_metadata["Company"],
-            "filing_type": filing_metadata["Type"],
-            "filing_date": filing_metadata["Date"],
-            "period_of_report": filing_metadata["Period of Report"],
-            "sic": filing_metadata["SIC"],
-            "state_of_inc": filing_metadata["State of Inc"],
-            "state_location": filing_metadata["State location"],
-            "fiscal_year_end": filing_metadata["Fiscal Year End"],
-            "filing_html_index": filing_metadata["html_index"],
-            "htm_filing_link": filing_metadata["htm_file_link"],
-            "complete_text_filing_link": filing_metadata["complete_text_file_link"],
-            "filename": filing_metadata["filename"],
+            "cik": metadata_value("CIK"),
+            "company": metadata_value("Company"),
+            "filing_type": metadata_value("Type"),
+            "filing_date": metadata_value("Date"),
+            "period_of_report": metadata_value("Period of Report"),
+            "sic": metadata_value("SIC"),
+            "state_of_inc": metadata_value("State of Inc"),
+            "state_location": metadata_value("State location"),
+            "fiscal_year_end": metadata_value("Fiscal Year End"),
+            "filing_html_index": metadata_value("html_index"),
+            "htm_filing_link": metadata_value("htm_file_link"),
+            "complete_text_filing_link": metadata_value("complete_text_file_link"),
+            "filename": metadata_value("filename"),
         }
 
         # Initialize item sections as empty strings in the JSON content

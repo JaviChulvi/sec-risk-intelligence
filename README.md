@@ -3,9 +3,9 @@
 Análisis automático de riesgos ocultos en informes financieros usando LLMs.
 
 Este repositorio está centrado en la parte de LLMs y evaluación del proyecto de
-tesis. El scraping de la SEC, la descarga de filings y la extracción de
-secciones se esperan desde una pipeline separada. Este repo consume fixtures de
-evaluación autocontenidos y ejecuta comprobaciones del modelo sobre ellos.
+tesis. El baseline principal consume fixtures de evaluación autocontenidos, y
+también incluye una integración exploratoria para descargar el último `10-K` de
+una compañía desde la SEC y extraer secciones mediante `edgar-crawler`.
 
 ## Objetivo de Investigación
 
@@ -61,6 +61,7 @@ Crea un archivo local `.env` y no lo commits.
 ```bash
 DEEPSEEK_API_KEY="..."
 DEEPSEEK_MODEL="..."
+SEC_USER_AGENT="Tu Nombre tu.email@example.com"
 ```
 
 Puedes crear o gestionar las API keys de DeepSeek desde la plataforma de
@@ -73,6 +74,10 @@ https://platform.deepseek.com/usage
 El cliente de DeepSeek carga `.env` cuando el notebook crea el cliente. Mantén
 las claves fuera de notebooks, logs y archivos commiteados.
 
+La SEC pide un `User-Agent` descriptivo para acceder a EDGAR. Usa
+`SEC_USER_AGENT` con nombre y email reales cuando ejecutes notebooks que
+descargan filings en vivo.
+
 ## Instalación
 
 ```bash
@@ -83,6 +88,18 @@ Para usar el notebook con tablas y gráficos:
 
 ```bash
 python3 -m pip install -e ".[notebook]"
+```
+
+Para usar la integración de descarga/extracción SEC con `edgar-crawler`:
+
+```bash
+python3 -m pip install -e ".[data-extraction]"
+```
+
+Para ejecutar notebooks que combinan extracción y LLM, instala ambos extras:
+
+```bash
+python3 -m pip install -e ".[notebook,data-extraction]"
 ```
 
 Ejecuta la suite de tests:
@@ -114,6 +131,52 @@ Los umbrales por defecto son:
 
 El notebook ejecuta todos los casos de `eval.json` por defecto y añade
 comprobaciones previas, tablas de métricas, gráficos y análisis de errores.
+
+## Ejecutar un 10-K Vivo con edgar-crawler
+
+El notebook de integración descarga el último `10-K` disponible para JPMorgan
+Chase & Co. (`JPM`), guarda una copia cacheada en el layout esperado por
+`edgar-crawler`, extrae `Item 1A. Risk Factors` con `ExtractItems` y después
+ejecuta el mismo prompt del baseline:
+
+```text
+notebooks/jpmorgan_latest_10k_risk_factor_prompt.ipynb
+```
+
+La API de alto nivel está en:
+
+```python
+from src.data_extraction import (
+    fetch_company_10k_risk_factors,
+    fetch_latest_10k_risk_factors,
+)
+
+# Caso puntual: último 10-K de JPM.
+risk_section = fetch_latest_10k_risk_factors("JPM")
+
+# Más general: últimos dos 10-K de una compañía.
+sections = fetch_company_10k_risk_factors("JPM", limit=2)
+
+# Años concretos por periodo de reporte.
+sections = fetch_company_10k_risk_factors("JPM", report_years={2024, 2025})
+```
+
+Internamente, el flujo es:
+
+1. Resolver ticker/CIK mediante la SEC.
+2. Listar filings por `form`, `limit` y/o años de reporte.
+3. Descargar el documento principal del filing.
+4. Guardarlo bajo `data/edgar_crawler_live/RAW_FILINGS/<form>/`.
+5. Construir la fila de metadata que espera `edgar-crawler`.
+6. Ejecutar `edgar-crawler` `ExtractItems`.
+7. Pasar `item_1A` al prompt de evaluación existente.
+
+Los datos descargados y outputs de ejecución quedan ignorados por Git:
+
+```text
+data/
+eval_runs/
+```
 
 ## Cómo se Puntúa la Evaluación
 
@@ -255,8 +318,14 @@ Métricas útiles de validación:
 |-- pyproject.toml
 |-- requirements.txt
 |-- notebooks/
-|   `-- deepseek_risk_factor_eval.ipynb
+|   |-- deepseek_risk_factor_eval.ipynb
+|   `-- jpmorgan_latest_10k_risk_factor_prompt.ipynb
 |-- src/
+|   |-- data_extraction/
+|   |   |-- company_filings.py
+|   |   |-- sec_filings.py
+|   |   |-- edgar_crawler_adapter.py
+|   |   `-- edgar-crawler/
 |   |-- evals/
 |   |   `-- risk_factor_listing.py
 |   |-- llm/
@@ -265,7 +334,9 @@ Métricas útiles de validación:
 |   |   `-- risk_factor_listing.py
 |   |-- settings.py
 |   `-- tests/
-|       `-- test_llm_eval.py
+|       |-- test_llm_eval.py
+|       |-- test_sec_filings.py
+|       `-- test_edgar_crawler_adapter.py
 ```
 
 ## Próximos Hitos
