@@ -101,7 +101,64 @@ class SecCompanyClient:
     ) -> list[FilingMetadata]:
         company = self.company_reference(identifier)
         submissions = self.get_json(submissions_url(company.cik))
-        recent = submissions.get("filings", {}).get("recent", {})
+        company_name = str(submissions.get("name") or company.name)
+        common = {
+            "ticker": company.ticker,
+            "cik": company.cik,
+            "sic": str(submissions.get("sic") or ""),
+            "state_of_inc": str(submissions.get("stateOfIncorporation") or ""),
+            "state_location": submission_state_location(submissions),
+            "fiscal_year_end": str(submissions.get("fiscalYearEnd") or ""),
+        }
+
+        filings_block = submissions.get("filings", {})
+        matches = self._search_filings_block(
+            filings_block.get("recent", {}),
+            form=form,
+            limit=limit,
+            report_years=report_years,
+            company_name=company_name,
+            common=common,
+        )
+        if limit is not None and len(matches) >= limit:
+            return matches
+
+        # High-volume filers (e.g. JPM) exhaust `recent` within months.
+        # Fetch additional pages only when needed and only those whose date
+        # range overlaps with the target years.
+        if report_years:
+            extra_files = filings_block.get("files", [])
+            for file_entry in extra_files:
+                if limit is not None and len(matches) >= limit:
+                    break
+                if not _file_entry_overlaps(file_entry, report_years):
+                    continue
+                name = file_entry.get("name", "")
+                if not name:
+                    continue
+                extra = self.get_json(f"{SEC_DATA_BASE_URL}/submissions/{name}")
+                page_matches = self._search_filings_block(
+                    extra,
+                    form=form,
+                    limit=limit - len(matches) if limit is not None else None,
+                    report_years=report_years,
+                    company_name=company_name,
+                    common=common,
+                )
+                matches.extend(page_matches)
+
+        return matches
+
+    def _search_filings_block(
+        self,
+        recent: dict[str, Any],
+        *,
+        form: str | None,
+        limit: int | None,
+        report_years: set[int] | None,
+        company_name: str,
+        common: dict[str, str],
+    ) -> list[FilingMetadata]:
         matches: list[FilingMetadata] = []
         for filing in iter_recent_filings(recent):
             if form and filing.get("form") != form:
@@ -116,23 +173,18 @@ class SecCompanyClient:
             primary_document = str(filing["primaryDocument"])
             matches.append(
                 FilingMetadata(
-                    company=str(submissions.get("name") or company.name),
-                    ticker=company.ticker,
-                    cik=company.cik,
+                    company=company_name,
                     form=str(filing["form"]),
                     filing_date=filing_date,
                     report_date=report_date,
                     accession_number=accession_number,
                     primary_document=primary_document,
                     document_url=filing_document_url(
-                        company.cik,
+                        common["cik"],
                         accession_number,
                         primary_document,
                     ),
-                    sic=str(submissions.get("sic") or ""),
-                    state_of_inc=str(submissions.get("stateOfIncorporation") or ""),
-                    state_location=submission_state_location(submissions),
-                    fiscal_year_end=str(submissions.get("fiscalYearEnd") or ""),
+                    **common,
                 )
             )
             if limit is not None and len(matches) >= limit:
@@ -156,6 +208,24 @@ class SecCompanyClient:
         if not response.ok:
             raise SecFilingError(f"SEC filing download failed with HTTP {response.status_code}: {url}")
         return response.text
+
+
+def _file_entry_overlaps(file_entry: dict[str, Any], report_years: set[int]) -> bool:
+    """Return True if a submissions `files` entry covers any of the target years.
+
+    A 10-K for fiscal year Y is typically filed in Q1 of Y+1, so we widen the
+    search window by one year on each side to avoid missing edge cases.
+    """
+    filing_from = str(file_entry.get("filingFrom") or "")
+    filing_to = str(file_entry.get("filingTo") or "")
+    if not filing_from or not filing_to:
+        return True
+    try:
+        from_year = int(filing_from[:4])
+        to_year = int(filing_to[:4])
+    except ValueError:
+        return True
+    return any(from_year <= y + 1 and to_year >= y - 1 for y in report_years)
 
 
 def sec_user_agent(env_path: str = ".env") -> str:
