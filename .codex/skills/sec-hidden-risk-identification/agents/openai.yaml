@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEC Hidden Risk Identification"
+  short_description: "Find implicit Item 1A hidden risks"
+  default_prompt: "Use $sec-hidden-risk-identification to produce eval-ready expected_hidden_risks candidates from this annual 10-K Item 1A text, without executing code."
