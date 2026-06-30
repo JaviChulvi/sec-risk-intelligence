@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEC Risk Factor Identification"
+  short_description: "Extract explicit Item 1A risk headings"
+  default_prompt: "Use $sec-risk-factor-identification to produce eval-ready expected_result_by_llm risk headings from this 10-K Item 1A text, without executing code."
