@@ -56,12 +56,10 @@ de fixture autocontenido para que la parte LLM sea reproducible.
 
 ## Entorno
 
-Crea un archivo local `.env` y no lo commits.
+Copia el archivo de ejemplo, edita los valores locales y no subas `.env` al repo.
 
 ```bash
-DEEPSEEK_API_KEY="..."
-DEEPSEEK_MODEL="..."
-SEC_USER_AGENT="Tu Nombre tu.email@example.com"
+cp .env.example .env
 ```
 
 Puedes crear o gestionar las API keys de DeepSeek desde la plataforma de
@@ -71,8 +69,10 @@ DeepSeek:
 https://platform.deepseek.com/usage
 ```
 
-El cliente de DeepSeek carga `.env` cuando el notebook crea el cliente. Mantén
-las claves fuera de notebooks, logs y archivos commiteados.
+El cliente de DeepSeek carga `.env` cuando el notebook crea el cliente. Las
+variables obligatorias para ejecutar las evals son `DEEPSEEK_API_KEY` y
+`DEEPSEEK_MODEL`. Mantén las claves fuera de notebooks, logs y archivos
+commiteados.
 
 La SEC pide un `User-Agent` descriptivo para acceder a EDGAR. Usa
 `SEC_USER_AGENT` con nombre y email reales cuando ejecutes notebooks que
@@ -131,6 +131,44 @@ Los umbrales por defecto son:
 
 El notebook ejecuta todos los casos de `eval.json` por defecto y añade
 comprobaciones previas, tablas de métricas, gráficos y análisis de errores.
+
+## Ejecutar la Eval Anual Genérica de Riesgos Implícitos
+
+La segunda eval analiza un solo año por caso. Cada caso contiene únicamente
+`Item 1A. Risk Factors` de un `10-K` para una compañía y pide al LLM que
+identifique riesgos implícitos o infraenfatizados con citas exactas del mismo
+texto anual.
+
+El flujo es agnóstico de compañía y sector: el modelo debe elegir un
+`risk_domain` genérico y generar su propio `sector_specific_topic` a partir de
+la evidencia del filing. Así podemos usar el mismo prompt y scorer para
+software, bancos, aseguradoras u otros sectores sin crear una taxonomía manual
+por compañía.
+
+Usa el notebook:
+
+```text
+notebooks/deepseek_hidden_risk_annual_eval.ipynb
+```
+
+El fixture autocontenido está en:
+
+```text
+hidden_risk_annual.discovery.json
+```
+
+Los outputs se escriben en:
+
+```text
+eval_runs/hidden_risk_annual_discovery/<run_id>/
+```
+
+Esta eval no pasa al modelo el filing anterior ni años futuros. La comparación
+año a año se hace después, agregando las salidas estructuradas por año. Si un
+caso no incluye `expected_hidden_risks`, el runner usa discovery mode y puntúa
+soporte de evidencia y claims no soportados. Si más adelante añadimos
+`expected_hidden_risks` revisados manualmente a un caso concreto, el mismo runner
+cambia a benchmark mode para ese caso.
 
 ## Ejecutar un 10-K Vivo con edgar-crawler
 
@@ -315,10 +353,12 @@ Métricas útiles de validación:
 .
 |-- README.md
 |-- eval.json
+|-- hidden_risk_annual.discovery.json
 |-- pyproject.toml
 |-- requirements.txt
 |-- notebooks/
 |   |-- deepseek_risk_factor_eval.ipynb
+|   |-- deepseek_hidden_risk_annual_eval.ipynb
 |   `-- jpmorgan_latest_10k_risk_factor_prompt.ipynb
 |-- src/
 |   |-- data_extraction/
@@ -327,13 +367,16 @@ Métricas útiles de validación:
 |   |   |-- edgar_crawler_adapter.py
 |   |   `-- edgar-crawler/
 |   |-- evals/
+|   |   |-- hidden_risk_annual.py
 |   |   `-- risk_factor_listing.py
 |   |-- llm/
 |   |   `-- deepseek.py
 |   |-- prompts/
+|   |   |-- hidden_risk_annual.py
 |   |   `-- risk_factor_listing.py
 |   |-- settings.py
 |   `-- tests/
+|       |-- test_hidden_risk_annual.py
 |       |-- test_llm_eval.py
 |       |-- test_sec_filings.py
 |       `-- test_edgar_crawler_adapter.py
@@ -341,9 +384,10 @@ Métricas útiles de validación:
 
 ## Próximos Hitos
 
-- Añadir el primer fixture de comparación year-over-year para riesgos ocultos.
-- Definir el schema JSON estructurado para hallazgos de riesgo oculto.
-- Escribir prompts que obliguen a citar evidencia y permitan no encontrar nada.
-- Crear una plantilla de etiquetado manual para validación.
-- Ejecutar el primer análisis de pares de años de Guidewire y revisar la salida
-  manualmente.
+- Probar el fixture discovery con un banco u otra compañía sin cambiar el
+  prompt ni el scorer.
+- Revisar manualmente algunos hallazgos discovery y convertirlos en
+  `expected_hidden_risks` sólo cuando queramos un benchmark gold.
+- Añadir `MD&A` cuando queramos evaluar contradicciones o riesgos implícitos
+  fuera de `Risk Factors`.
+- Ampliar el fixture genérico con más compañías y sectores.
