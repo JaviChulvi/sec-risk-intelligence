@@ -1,0 +1,98 @@
+\documentclass[spanish,a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\begin{document}
+
+\begin{center}
+    \Large \textbf{PROPUESTA DE TRABAJO DE FIN DE MÁSTER (ANTEPROYECTO)} \\
+    \vspace{0.5cm}
+\includegraphics[width=5cm]{figs/Logotipo-Instituto-BME-300x300.jpg}    \\
+    \large \textbf{Máster en Inteligencia Artificial y Computación Cuántica \\ Aplicada a los Mercados Financieros (MIAX)}
+\end{center}
+
+\vspace{-0cm}
+
+\section*{Datos de lo Alumno/as}
+\begin{tabularx}{\textwidth}{|X|X|p{6cm}|}
+\hline
+\textbf{Nombre y Apellidos} & \textbf{DNI/NIE} &
+\textbf{Email} \\
+\hline
+\textbf Javier Chulvi Bernad &  &
+\textbf javichulvisi@gmail.com \\
+\hline
+\textbf Hugo Vinuesa Busson &   &
+\textbf hugo.vinuesab@gmail.com \\
+\hline
+\textbf Higinio Paterna Ortiz & 26504652G  &
+\textbf higiniopaternaortiz@gmail.com \\
+\hline
+\end{tabularx}
+
+\vspace{0.1cm}
+
+\section*{Datos de la Tutoría}
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Tutor/a interno:} Jesús Sanz del Real & \textbf{Departamento/Entidad:} Oliver Wyman \\
+\hline
+\textbf{Tutor/a externo:} José Daniel Menéndez Hernández & \textbf{Departamento/Entidad:} Oliver Wyman \\
+\hline
+\end{tabularx}
+\vspace{0.2cm}
+\textit{En caso de más tutores/as, añadir las filas necesarias. Los tutores aceptan la tutorización del presente TFM por el plazo correspondiente.}
+
+\vspace{0.1cm}
+
+\section*{Datos del Anteproyecto}
+
+\textbf{Título del Anteproyecto:} \\ Análisis automático de riesgos ocultos en informes 10K usando LLMs.
+
+\vspace{0.0cm}
+\textbf{Palabras clave:} \\ Riesgos, LLM, NLP, 10K, Automatización.
+
+\newpage
+
+\vspace{0.1cm}
+
+\section*{Descripción de Objetivos y Especificaciones}
+El objetivo principal de este Trabajo de Fin de Máster es el desarrollo de un sistema capaz de detectar de forma automática riesgos ocultos, es decir, no explícitos, en los informes anuales 10-K que las empresas presentan ante la SEC. Partimos de la premisa de que buena parte de la información relevante sobre la exposición al riesgo de una compañía no se encuentra declarada de manera directa, sino que emerge del análisis de la evolución de su discurso a lo largo del tiempo: cambios sutiles en la redacción, omisiones, matizaciones o la aparición y desaparición de determinados temas entre ejercicios consecutivos. Por ello, el sistema no analizará cada informe de forma aislada, sino que examinará el histórico disponible de cada empresa para identificar señales que solo cobran sentido en su dimensión longitudinal. \\
+
+
+Para alcanzar este objetivo, combinaremos dos familias de técnicas complementarias. Por un lado, emplearemos modelos de lenguaje de gran tamaño (LLMs) para comparar los informes de años distintos y extraer las diferencias significativas en el tratamiento de los factores de riesgo, aprovechando su capacidad para interpretar el lenguaje financiero en su contexto. Por otro, recurriremos a técnicas más clásicas de aprendizaje automático, que nos permitirán estructurar, agrupar y caracterizar los riesgos detectados de forma cuantitativa y reproducible. Finalmente, más allá de la validación metodológica, aspiramos a dotar al sistema de una aplicación real en un entorno de producción, de modo que los resultados puedan integrarse en un flujo de trabajo utilizable y aporten valor práctico en la evaluación del riesgo corporativo
+
+\textbf{Objetivos específicos:}
+\begin{itemize}
+    \item Obtención y limpieza de un dataset financiero.
+    \item Implementación de un modelo algorítmico / cuántico.
+    \item Comparación del rendimiento respecto a modelos tradicionales y validación.
+\end{itemize}
+
+\section*{Cronograma, Plan de Trabajo y Entregables}
+\begin{itemize}
+    \item \textbf{Mes 1:} Revisión bibliográfica (Estado del Arte), limpieza de datos y EDA.
+    \item \textbf{Mes 2:} Preprocesamiento de datos y diseño del enfoque algorítmico o probabilístico.
+    \item \textbf{Mes 3:} Ejecución de experimentos, entrenamiento y evaluación de los resultados.
+    \item \textbf{Mes 4:} Análisis final, redacción de conclusiones y elaboración de la memoria del TFM.
+\end{itemize}
+
+\section*{Observaciones}
+
+\vspace{1.5cm}
+\begin{center}
+\begin{tabular}{ccc}
+\textbf{Firma del Alumno/as} & \hspace{2cm} & \textbf{Firma de los Tutores/as} \\[2cm]
+\rule{5cm}{0.4pt} & & \rule{5cm}{0.4pt} \\
+Fecha: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ & & Fecha: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{tabular}
+\end{center}
+
+\end{document}
+
