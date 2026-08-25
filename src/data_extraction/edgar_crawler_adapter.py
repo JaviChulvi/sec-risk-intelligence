@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 import warnings
 from contextlib import contextmanager
@@ -59,29 +60,52 @@ def extract_filing_items_with_edgar_crawler(
     raw_filings_folder = cache_path / "RAW_FILINGS"
     filing_folder = raw_filings_folder / metadata.form
     filing_folder.mkdir(parents=True, exist_ok=True)
+    extracted_filing_folder = cache_path / "EXTRACTED_FILINGS" / metadata.form
+    extracted_filing_folder.mkdir(parents=True, exist_ok=True)
 
     filename = cached_filing_filename(metadata)
     filing_path = filing_folder / filename
+    extracted_path = extracted_filing_folder / f"{Path(filename).stem}.json"
+    requested_keys = {edgar_crawler_item_key(item) for item in items_to_extract}
+    raw_is_unchanged = (
+        filing_path.exists()
+        and filing_path.read_text(encoding="utf-8") == filing_html
+    )
+    cached = load_cached_extraction(extracted_path) if raw_is_unchanged else None
+    if cached is not None and requested_keys.issubset(cached):
+        return cached
+
     filing_path.write_text(filing_html, encoding="utf-8")
+    extracted_path.unlink(missing_ok=True)
 
     ExtractItems = load_edgar_crawler_extract_items()
     extraction = ExtractItems(
         remove_tables=True,
-        items_to_extract=items_to_extract,
+        items_to_extract=[],
         include_signature=False,
         raw_files_folder=str(raw_filings_folder),
         extracted_files_folder=str(cache_path / "EXTRACTED_FILINGS"),
-        skip_extracted_filings=True,
+        skip_extracted_filings=False,
     )
 
     filing_metadata = edgar_crawler_metadata_row(metadata, filename)
-    extraction.determine_items_to_extract(filing_metadata)
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
-        extracted = extraction.extract_items(filing_metadata)
-    if not isinstance(extracted, dict):
-        raise SecFilingError(f"edgar-crawler returned no extracted items for {metadata.document_url}")
+        extraction.process_filing(filing_metadata)
+    extracted = load_cached_extraction(extracted_path)
+    if extracted is None:
+        raise SecFilingError(
+            f"edgar-crawler returned no extracted items for {metadata.document_url}"
+        )
     return extracted
+
+
+def load_cached_extraction(path: Path) -> dict[str, Any] | None:
+    try:
+        cached = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    return cached if isinstance(cached, dict) else None
 
 
 def edgar_crawler_item_key(item: str) -> str:
