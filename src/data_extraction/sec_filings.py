@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,8 +13,13 @@ from src.settings import load_dotenv
 
 SEC_DATA_BASE_URL = "https://data.sec.gov"
 SEC_WWW_BASE_URL = "https://www.sec.gov"
-DEFAULT_SEC_USER_AGENT = "sec-risk-intelligence/0.1 research@example.com"
 DEFAULT_TIMEOUT_SECONDS = 30
+MAX_SEC_ATTEMPTS = 3
+RETRYABLE_SEC_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
+SEC_USER_AGENT_EMAIL_PATTERN = re.compile(
+    r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
+    re.IGNORECASE,
+)
 
 
 class SecFilingError(RuntimeError):
@@ -56,7 +62,9 @@ class SecCompanyClient:
         user_agent: str | None = None,
         session: requests.Session | None = None,
     ) -> None:
-        self.user_agent = user_agent or sec_user_agent()
+        self.user_agent = (
+            sec_user_agent() if user_agent is None else validate_sec_user_agent(user_agent)
+        )
         self.session = session or requests.Session()
         self.session.headers.update(
             {
@@ -192,9 +200,7 @@ class SecCompanyClient:
         return matches
 
     def get_json(self, url: str) -> dict[str, Any]:
-        response = self.session.get(url, timeout=DEFAULT_TIMEOUT_SECONDS)
-        if not response.ok:
-            raise SecFilingError(f"SEC request failed with HTTP {response.status_code}: {url}")
+        response = self._get(url)
         try:
             data = response.json()
         except ValueError as exc:
@@ -204,10 +210,42 @@ class SecCompanyClient:
         return data
 
     def get_text(self, url: str) -> str:
-        response = self.session.get(url, timeout=DEFAULT_TIMEOUT_SECONDS)
-        if not response.ok:
-            raise SecFilingError(f"SEC filing download failed with HTTP {response.status_code}: {url}")
+        response = self._get(url)
         return response.text
+
+    def _get(self, url: str) -> requests.Response:
+        for attempt in range(MAX_SEC_ATTEMPTS):
+            retry_after = None
+            try:
+                response = self.session.get(url, timeout=DEFAULT_TIMEOUT_SECONDS)
+            except (requests.ConnectionError, requests.Timeout) as exc:
+                if attempt == MAX_SEC_ATTEMPTS - 1:
+                    raise SecFilingError(
+                        f"SEC request failed after {attempt + 1} attempts: {url}: {exc}"
+                    ) from exc
+            else:
+                if response.ok:
+                    return response
+                if (
+                    response.status_code not in RETRYABLE_SEC_STATUS_CODES
+                    or attempt == MAX_SEC_ATTEMPTS - 1
+                ):
+                    raise SecFilingError(
+                        f"SEC request failed with HTTP {response.status_code}: {url}"
+                    )
+                retry_after = response.headers.get("Retry-After")
+
+            try:
+                delay = max(0.0, float(retry_after)) if retry_after is not None else None
+            except ValueError:
+                delay = None
+            time.sleep(
+                delay
+                if delay is not None
+                else 2.0**attempt
+            )
+
+        raise AssertionError("SEC retry loop did not return or raise")
 
 
 def _file_entry_overlaps(file_entry: dict[str, Any], report_years: set[int]) -> bool:
@@ -230,7 +268,25 @@ def _file_entry_overlaps(file_entry: dict[str, Any], report_years: set[int]) -> 
 
 def sec_user_agent(env_path: str = ".env") -> str:
     load_dotenv(env_path)
-    return os.environ.get("SEC_USER_AGENT", DEFAULT_SEC_USER_AGENT)
+    return validate_sec_user_agent(os.environ.get("SEC_USER_AGENT", ""))
+
+
+def validate_sec_user_agent(user_agent: str) -> str:
+    cleaned = user_agent.strip()
+    email_match = SEC_USER_AGENT_EMAIL_PATTERN.search(cleaned)
+    identity = SEC_USER_AGENT_EMAIL_PATTERN.sub("", cleaned).strip(" ()<>-/")
+    if (
+        email_match is None
+        or not identity
+        or email_match.group(0).lower().endswith(
+            ("@example.com", "@example.net", "@example.org")
+        )
+    ):
+        raise SecFilingError(
+            "SEC_USER_AGENT must identify the requester by name with a real contact email, "
+            "for example 'Your Name you@company.com'."
+        )
+    return cleaned
 
 
 def normalize_cik(value: str) -> str:
