@@ -132,14 +132,14 @@ class SecCompanyClient:
             return matches
 
         # High-volume filers (e.g. JPM) exhaust `recent` within months.
-        # Fetch additional pages only when needed and only those whose date
-        # range overlaps with the target years.
-        if report_years:
+        # Recorre el archivo cuando recent no cubre la consulta. Sin filtro de
+        # años, todas las páginas pueden contener informes relevantes.
+        if limit is None or len(matches) < limit:
             extra_files = filings_block.get("files", [])
             for file_entry in extra_files:
                 if limit is not None and len(matches) >= limit:
                     break
-                if not _file_entry_overlaps(file_entry, report_years):
+                if report_years and not _file_entry_overlaps(file_entry, report_years):
                     continue
                 name = file_entry.get("name", "")
                 if not name:
