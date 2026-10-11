@@ -108,6 +108,17 @@ Ejecuta la suite de tests:
 python3 -m pytest -q
 ```
 
+## Descargar el Histórico de 10-K de las Siete Magníficas
+
+Para reunir primero el corpus documental de las siete magníficas, usa
+`notebooks/mag7_10k_corpus.ipynb`. Descarga todos los `10-K` y `10-K405`
+enumerados en los índices recientes e históricos de EDGAR, incluyendo el
+emisor histórico Google. Requiere los extras `notebook,data-extraction` y un
+`SEC_USER_AGENT` real en `.env`. Guarda originales, texto de lectura e
+inventarios JSON/CSV con estados y rutas relativas en `data/mag7_10k/`.
+Las descargas se pueden reanudar. No incluye enmiendas, llamadas a LLMs,
+noticias ni selección del último año; esa exploración se hará en otro notebook.
+
 ## Ejecutar el Baseline con DeepSeek
 
 Usa el notebook:
