@@ -26,6 +26,7 @@ data-extraction = [
   "urllib3>=1.26.7,<3",
 ]
 notebook = [
+  "huggingface-hub>=0.34",
   "matplotlib",
   "pandas",
 ]
