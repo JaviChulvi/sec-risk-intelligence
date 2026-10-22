@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modelo de datos TFM · SEC 10-K</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #182230;
+      --muted: #5b6878;
+      --line: #d9e0e8;
+      --paper: #ffffff;
+      --canvas: #eef2f6;
+      --accent: #155eef;
+      --accent-soft: #eaf1ff;
+      --shadow: 0 12px 34px rgb(29 41 57 / 9%);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 42px clamp(20px, 5vw, 72px) 30px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 88% 18%, rgb(92 149 255 / 42%), transparent 28%),
+        linear-gradient(125deg, #0b1f44, #123d80 58%, #155eef);
+    }
+
+    header .eyebrow {
+      margin: 0 0 8px;
+      color: #bfd3ff;
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 950px;
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.7rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    header .lead {
+      max-width: 850px;
+      margin: 18px 0 0;
+      color: #dbe7ff;
+      font-size: 1.03rem;
+    }
+
+    nav {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px clamp(16px, 5vw, 72px);
+      border-bottom: 1px solid var(--line);
+      background: rgb(255 255 255 / 92%);
+      backdrop-filter: blur(14px);
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: #344054;
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    main {
+      display: grid;
+      gap: 28px;
+      width: min(1680px, calc(100% - 32px));
+      margin: 30px auto 54px;
+    }
+
+    .view {
+      scroll-margin-top: 82px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .view-heading {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 15px;
+      align-items: start;
+      padding: 25px 28px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .view-number {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 800;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+      letter-spacing: -0.02em;
+    }
+
+    .view-heading p {
+      max-width: 950px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .diagram-shell {
+      min-height: 520px;
+      overflow: auto;
+      padding: 22px;
+      background:
+        linear-gradient(90deg, rgb(24 34 48 / 3%) 1px, transparent 1px),
+        linear-gradient(rgb(24 34 48 / 3%) 1px, transparent 1px),
+        #fbfcfe;
+      background-size: 24px 24px;
+    }
+
+    .diagram {
+      min-width: 1120px;
+      min-height: 470px;
+    }
+
+    .diagram svg {
+      display: block;
+      width: 100%;
+      min-width: 1120px;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .shared-note {
+      margin: 0;
+      padding: 13px 28px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: #f8fafc;
+      font-size: 0.82rem;
+    }
+
+    .error {
+      padding: 18px;
+      border: 1px solid #fda29b;
+      border-radius: 10px;
+      color: #912018;
+      background: #fef3f2;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 700px) {
+      header { padding-top: 30px; }
+      main { width: min(100% - 18px, 1680px); }
+      .view-heading { padding: 20px 18px 17px; }
+      .diagram-shell { padding: 12px; }
+      .shared-note { padding-inline: 18px; }
+    }
+
+    @media print {
+      @page { size: A3 landscape; margin: 10mm; }
+      body { background: #fff; }
+      header { padding: 18px 24px; }
+      nav { display: none; }
+      main { display: block; width: 100%; margin: 0; }
+      .view {
+        min-height: 96vh;
+        margin: 0;
+        break-after: page;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .view:last-child { break-after: auto; }
+      .diagram-shell { overflow: visible; background: #fff; }
+      .diagram, .diagram svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">TFM · Inteligencia de riesgos SEC</p>
+    <h1>Modelo de datos para el análisis longitudinal de informes 10-K</h1>
+    <p class="lead">
+      Tres vistas complementarias del mismo modelo: trazabilidad documental,
+      comparación longitudinal y experimentación reproducible con validación.
+    </p>
+  </header>
+
+  <nav aria-label="Navegación entre vistas">
+    <a href="#vista-ingesta">1 · Ingesta</a>
+    <a href="#vista-comparacion">2 · Comparación</a>
+    <a href="#vista-clustering">3 · Clustering y validación</a>
+  </nav>
+
+  <main>
+    <section class="view" id="vista-ingesta">
+      <div class="view-heading">
+        <span class="view-number">1</span>
+        <div>
+          <h2>Ingesta, procedencia y estructura del 10-K</h2>
+          <p>
+            Identifica la empresa y el filing oficial, preserva el documento descargado
+            y registra qué versión del parser produjo cada sección, párrafo y frase.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-shell">
+        <div class="diagram" id="diagram-ingesta" role="img" aria-label="Vista de ingesta, procedencia y estructura"></div>
+      </div>
+      <p class="shared-note">
+        Punto de salida hacia la vista 2: EJECUCION_PARSING y sus FRASE procesadas.
+      </p>
+    </section>
+
+    <section class="view" id="vista-comparacion">
+      <div class="view-heading">
+        <span class="view-number">2</span>
+        <div>
+          <h2>Comparación longitudinal y generación de resultados</h2>
+          <p>
+            Separa la construcción de características de la ejecución analítica,
+            modela explícitamente uno o varios informes de referencia y conserva
+            la evidencia que sustenta cada hallazgo.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-shell">
+        <div class="diagram" id="diagram-comparacion" role="img" aria-label="Vista de comparación longitudinal y resultados"></div>
+      </div>
+      <p class="shared-note">
+        Las entidades INFORME, EJECUCION_PARSING, FRASE y VERSION_MODELO reaparecen como conectores entre vistas.
+      </p>
+    </section>
+
+    <section class="view" id="vista-clustering">
+      <div class="view-heading">
+        <span class="view-number">3</span>
+        <div>
+          <h2>Clustering, experimentación y validación</h2>
+          <p>
+            Mantiene el clustering como ejecución independiente y evalúa análisis
+            o clustering contra datasets versionados, casos revisables y métricas reproducibles.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-shell">
+        <div class="diagram" id="diagram-clustering" role="img" aria-label="Vista de clustering, experimentación y validación"></div>
+      </div>
+      <p class="shared-note">
+        Regla de integridad en RESULTADO_EVALUACION: exactamente uno entre ejecucion_analisis_id y ejecucion_clustering_id.
+      </p>
+    </section>
+  </main>
+
+  <script type="text/plain" id="source-ingesta">
+erDiagram
+    EMPRESA ||--o{ INFORME : presenta
+    INFORME ||--o{ DOCUMENTO_FUENTE : dispone_de
+    DOCUMENTO_FUENTE ||--o{ EJECUCION_PARSING : se_procesa_en
+    VERSION_PARSING ||--o{ EJECUCION_PARSING : configura
+    EJECUCION_PARSING ||--o{ SECCION : genera
+    SECCION ||--o{ PARRAFO : contiene
+    PARRAFO ||--o{ FRASE : contiene
+
+    EMPRESA {
+        string CIK PK
+        string nombre_legal
+    }
+    INFORME {
+        string accession_number PK
+        string CIK FK
+        string tipo_formulario
+        int anio_fiscal
+        date fecha_cierre_fiscal
+        string ticker_filing
+        datetime fecha_filing
+        string url_indice_sec
+    }
+    DOCUMENTO_FUENTE {
+        int id PK
+        string accession_number FK
+        string tipo
+        string url_origen
+        string sha256
+        datetime descargado_en
+        string almacenamiento_uri
+    }
+    VERSION_PARSING {
+        int id PK
+        string nombre_parser
+        string version_codigo
+        json configuracion
+    }
+    EJECUCION_PARSING {
+        int id PK
+        int documento_fuente_id FK
+        int version_parsing_id FK
+        datetime ejecutado_en
+        string estado
+    }
+    SECCION {
+        int id PK
+        int ejecucion_parsing_id FK
+        string tipo
+    }
+    PARRAFO {
+        int id PK
+        int seccion_id FK
+        int orden
+    }
+    FRASE {
+        int id PK
+        int parrafo_id FK
+        int orden
+        text texto
+    }
+  </script>
+
+  <script type="text/plain" id="source-comparacion">
+erDiagram
+    EJECUCION_PARSING ||--o{ EJECUCION_CARACTERIZACION : alimenta
+    VERSION_MODELO ||--o{ EJECUCION_CARACTERIZACION : se_utiliza_en
+    FRASE ||--o{ CARACTERISTICA_FRASE : caracteriza
+    EJECUCION_CARACTERIZACION ||--o{ CARACTERISTICA_FRASE : genera
+    INFORME ||--o{ REPRESENTACION_INFORME : representa
+    EJECUCION_CARACTERIZACION ||--o| REPRESENTACION_INFORME : agrega
+    REPRESENTACION_INFORME ||--o{ SCORE : produce
+    INFORME ||--o{ COMPARACION : es_objetivo_de
+    COMPARACION ||--|{ COMPARACION_INFORME_REFERENCIA : incluye
+    INFORME ||--o{ COMPARACION_INFORME_REFERENCIA : sirve_como_referencia
+    COMPARACION ||--o{ EJECUCION_ANALISIS : se_evalua_en
+    VERSION_MODELO ||--o{ EJECUCION_ANALISIS : se_utiliza_en
+    EJECUCION_ANALISIS ||--o{ SCORE : genera
+    EJECUCION_ANALISIS ||--o{ HALLAZGO : genera
+    HALLAZGO ||--|{ EVIDENCIA_HALLAZGO : se_sustenta_en
+    INFORME ||--o{ EVIDENCIA_HALLAZGO : contextualiza
+    PARRAFO o|--o{ EVIDENCIA_HALLAZGO : localiza
+
+    INFORME {
+        string accession_number PK
+        string CIK FK
+        int anio_fiscal
+    }
+    EJECUCION_PARSING {
+        int id PK
+        int documento_fuente_id FK
+        int version_parsing_id FK
+    }
+    FRASE {
+        int id PK
+        int parrafo_id FK
+        text texto
+    }
+    PARRAFO {
+        int id PK
+        int seccion_id FK
+        int orden
+    }
+    VERSION_MODELO {
+        int id PK
+        string nombre
+        string familia_tecnica
+        string proveedor
+        string version_externa
+        json configuracion_base
+    }
+    EJECUCION_CARACTERIZACION {
+        int id PK
+        int ejecucion_parsing_id FK
+        int version_modelo_id FK
+        string version_codigo
+        json parametros
+        int semilla
+        datetime iniciada_en
+        datetime finalizada_en
+        string estado
+    }
+    CARACTERISTICA_FRASE {
+        int id PK
+        int frase_id FK
+        int ejecucion_caracterizacion_id FK
+        json features
+    }
+    REPRESENTACION_INFORME {
+        int id PK
+        string accession_number FK
+        int ejecucion_caracterizacion_id FK
+        json features_agregadas
+    }
+    COMPARACION {
+        int id PK
+        string accession_objetivo FK
+        string estrategia
+    }
+    COMPARACION_INFORME_REFERENCIA {
+        int comparacion_id PK, FK
+        string accession_referencia PK, FK
+        int orden
+        decimal peso
+    }
+    EJECUCION_ANALISIS {
+        int id PK
+        int comparacion_id FK
+        int version_modelo_id FK
+        string version_codigo
+        string version_prompt
+        json parametros
+        int semilla
+        datetime iniciada_en
+        datetime finalizada_en
+        string estado
+    }
+    SCORE {
+        int id PK
+        int representacion_informe_id FK
+        int ejecucion_analisis_id FK
+        decimal valor
+        json contribucion
+    }
+    HALLAZGO {
+        int id PK
+        int ejecucion_analisis_id FK
+        text descripcion
+        decimal confianza
+        string severidad
+    }
+    EVIDENCIA_HALLAZGO {
+        int id PK
+        int hallazgo_id FK
+        string accession_number FK
+        int parrafo_id FK
+        string rol_documento
+        string tipo_evidencia
+        text texto_citado
+        int inicio_offset
+        int fin_offset
+        text explicacion
+    }
+  </script>
+
+  <script type="text/plain" id="source-clustering">
+erDiagram
+    VERSION_MODELO ||--o{ EJECUCION_CLUSTERING : se_utiliza_en
+    EJECUCION_CLUSTERING ||--|{ ENTRADA_CLUSTERING : incluye
+    HALLAZGO ||--o{ ENTRADA_CLUSTERING : participa
+    EJECUCION_CLUSTERING ||--o{ GRUPO_RIESGO : genera
+    EJECUCION_CLUSTERING ||--o{ ASIGNACION : registra
+    HALLAZGO ||--o{ ASIGNACION : recibe
+    GRUPO_RIESGO ||--o{ ASIGNACION : agrupa
+    DATASET_EVALUACION ||--|{ CASO_EVALUACION : contiene
+    COMPARACION o|--o{ CASO_EVALUACION : contextualiza
+    CASO_EVALUACION ||--o{ ANOTACION_REFERENCIA : tiene
+    DATASET_EVALUACION ||--o{ EJECUCION_EVALUACION : se_usa_en
+    VERSION_MODELO o|--o{ EJECUCION_EVALUACION : evalua_con
+    EJECUCION_EVALUACION ||--|{ RESULTADO_EVALUACION : produce
+    CASO_EVALUACION ||--o{ RESULTADO_EVALUACION : comprueba
+    EJECUCION_ANALISIS o|--o{ RESULTADO_EVALUACION : objeto_analisis
+    EJECUCION_CLUSTERING o|--o{ RESULTADO_EVALUACION : objeto_clustering
+    EJECUCION_EVALUACION ||--o{ METRICA_EVALUACION : resume
+
+    VERSION_MODELO {
+        int id PK
+        string nombre
+        string familia_tecnica
+        string proveedor
+        string version_externa
+        json configuracion_base
+    }
+    EJECUCION_ANALISIS {
+        int id PK
+        int comparacion_id FK
+        int version_modelo_id FK
+        string version_codigo
+    }
+    COMPARACION {
+        int id PK
+        string accession_objetivo FK
+        string estrategia
+    }
+    HALLAZGO {
+        int id PK
+        int ejecucion_analisis_id FK
+        text descripcion
+        decimal confianza
+        string severidad
+    }
+    EJECUCION_CLUSTERING {
+        int id PK
+        int version_modelo_id FK
+        string version_codigo
+        json parametros
+        int semilla
+        datetime iniciada_en
+        datetime finalizada_en
+        string estado
+    }
+    ENTRADA_CLUSTERING {
+        int ejecucion_clustering_id PK, FK
+        int hallazgo_id PK, FK
+    }
+    GRUPO_RIESGO {
+        int id PK
+        int ejecucion_clustering_id FK
+        string etiqueta
+        text descripcion
+    }
+    ASIGNACION {
+        int id PK
+        int ejecucion_clustering_id FK
+        int hallazgo_id FK
+        int grupo_riesgo_id FK
+        decimal pertenencia
+        boolean representativo
+    }
+    DATASET_EVALUACION {
+        int id PK
+        string nombre
+        string version
+        string tarea
+        string hash_contenido
+        datetime creado_en
+        string estado_revision
+    }
+    CASO_EVALUACION {
+        int id PK
+        int dataset_evaluacion_id FK
+        int comparacion_id FK
+        string particion
+        json metadata
+    }
+    ANOTACION_REFERENCIA {
+        int id PK
+        int caso_evaluacion_id FK
+        json contenido_esperado
+        string anotador
+        string fuente
+        string review_status
+        datetime creada_en
+    }
+    EJECUCION_EVALUACION {
+        int id PK
+        int dataset_evaluacion_id FK
+        int version_modelo_evaluador_id FK
+        string version_codigo
+        json configuracion
+        datetime iniciada_en
+        datetime finalizada_en
+        string estado
+    }
+    RESULTADO_EVALUACION {
+        int id PK
+        int ejecucion_evaluacion_id FK
+        int caso_evaluacion_id FK
+        int ejecucion_analisis_id FK
+        int ejecucion_clustering_id FK
+        boolean superado
+        decimal valor
+        json detalle
+    }
+    METRICA_EVALUACION {
+        int id PK
+        int ejecucion_evaluacion_id FK
+        string nombre
+        string alcance
+        decimal valor
+        json desglose
+    }
+  </script>
+
+  <script type="module">
+    import mermaid from "https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs";
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "strict",
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#eff5ff",
+        primaryBorderColor: "#155eef",
+        primaryTextColor: "#182230",
+        lineColor: "#52657a",
+        tertiaryColor: "#f8fafc",
+        fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+        fontSize: "13px"
+      },
+      er: {
+        diagramPadding: 24,
+        layoutDirection: "TB",
+        minEntityWidth: 120,
+        minEntityHeight: 70,
+        entityPadding: 12,
+        stroke: "#52657a",
+        fill: "#eff5ff"
+      }
+    });
+
+    const views = [
+      ["ingesta", "source-ingesta", "diagram-ingesta"],
+      ["comparacion", "source-comparacion", "diagram-comparacion"],
+      ["clustering", "source-clustering", "diagram-clustering"]
+    ];
+
+    for (const [name, sourceId, targetId] of views) {
+      const source = document.getElementById(sourceId).textContent.trim();
+      const target = document.getElementById(targetId);
+
+      try {
+        const rendered = await mermaid.render("erd-" + name, source);
+        target.innerHTML = rendered.svg;
+        rendered.bindFunctions?.(target);
+
+        target.querySelectorAll("g.entityBox rect, g[class*='entityBox'] rect").forEach((rect) => {
+          rect.setAttribute("rx", "8");
+          rect.setAttribute("ry", "8");
+        });
+      } catch (error) {
+        target.innerHTML = "";
+        const message = document.createElement("pre");
+        message.className = "error";
+        message.textContent = "No se pudo renderizar esta vista.\n" + String(error);
+        target.appendChild(message);
+      }
+    }
+  </script>
+</body>
+</html>

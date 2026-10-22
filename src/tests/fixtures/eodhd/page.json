@@ -1,0 +1,11 @@
+[
+  {
+    "date": "2026-10-18T10:30:00+02:00",
+    "title": "Synthetic security incident affects test company",
+    "content": "The company said a synthetic security incident caused unauthorized access. This fixture is not empirical evidence.",
+    "link": "https://example.test/story?id=7&utm_source=fixture#fragment",
+    "symbols": ["AAPL.US"],
+    "tags": ["technology"],
+    "sentiment": {"polarity": -0.5, "neg": 0.7, "neu": 0.2, "pos": 0.1}
+  }
+]

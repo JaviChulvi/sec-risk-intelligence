@@ -136,6 +136,15 @@ completo; se pierden noticias sin ticker y no se infiere ausencia de eventos.
 El notebook incluye las fuentes, la licencia académica/no comercial y las reglas
 de deduplicación. La descarga se reutiliza; el filtrado se repite si se interrumpe.
 
+## Piloto Complementario de Noticias EODHD
+
+El piloto acotado de EODHD está documentado en
+[`src/news/README.md`](src/news/README.md). Incluye un adaptador desacoplado,
+consultas reanudables, normalización, control de calidad del texto, deduplicación,
+filtro auditable de tres familias y propuestas de episodios. Las noticias permanecen
+separadas de las evals documentales. Los cuerpos y respuestas se conservan solo en
+rutas locales ignoradas por Git; el histórico completo requiere autorización expresa.
+
 ## Ejecutar el Baseline con DeepSeek
 
 Usa el notebook:

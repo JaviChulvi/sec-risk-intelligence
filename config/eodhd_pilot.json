@@ -1,0 +1,90 @@
+{
+  "provider": "eodhd",
+  "endpoint": "https://eodhd.com/api/news",
+  "http": {
+    "timeout_seconds": 30,
+    "max_attempts": 5,
+    "backoff_base_seconds": 1.0,
+    "backoff_max_seconds": 30.0,
+    "jitter_seconds": 0.5
+  },
+  "pagination": {
+    "limit": 1000,
+    "max_offset": 9000
+  },
+  "paths": {
+    "raw": "data/restricted/news/eodhd/raw",
+    "normalized": "data/restricted/news/eodhd/normalized",
+    "derived": "data/processed/eodhd_mag7"
+  },
+  "modes": {
+    "demo": {
+      "tickers": ["AAPL.US", "AMZN.US", "TSLA.US"],
+      "lookback_days": 7
+    },
+    "pilot": {
+      "tickers": [],
+      "requires_explicit_dates": true
+    }
+  },
+  "companies": {
+    "AAPL": {"name": "Apple", "query_tickers": ["AAPL.US"]},
+    "MSFT": {"name": "Microsoft", "query_tickers": ["MSFT.US"]},
+    "GOOGL": {"name": "Alphabet", "query_tickers": ["GOOG.US", "GOOGL.US"]},
+    "AMZN": {"name": "Amazon", "query_tickers": ["AMZN.US"]},
+    "NVDA": {"name": "NVIDIA", "query_tickers": ["NVDA.US"]},
+    "META": {"name": "Meta", "query_tickers": ["META.US", "FB.US"]},
+    "TSLA": {"name": "Tesla", "query_tickers": ["TSLA.US"]}
+  },
+  "content_quality": {
+    "partial_min_words": 80,
+    "full_min_words": 250
+  },
+  "deduplication": {
+    "date_tolerance_days": 2,
+    "title_similarity_threshold": 0.94
+  },
+  "event_clustering": {
+    "max_days": 5,
+    "similarity_threshold": 0.62
+  },
+  "review_sample": {
+    "per_company_candidates": 5,
+    "per_company_other": 5,
+    "seed": "eodhd-pilot-v1"
+  },
+  "risk_rules": {
+    "customer_concentration": [
+      {"label": "customer concentration", "pattern": "\\bcustomer concentration\\b"},
+      {"label": "major customer", "pattern": "\\bmajor customers?\\b"},
+      {"label": "key customer", "pattern": "\\bkey customers?\\b"},
+      {"label": "customer dependency", "pattern": "\\bcustomer dependen(?:cy|t)\\b"},
+      {"label": "contract loss", "pattern": "\\b(?:lost|loss of|terminated|termination of) (?:a )?(?:major |key )?customer contract\\b"},
+      {"label": "reduced purchases", "pattern": "\\b(?:customer )?(?:reduced|cut|decreased) purchases?\\b"}
+    ],
+    "critical_suppliers": [
+      {"label": "critical supplier", "pattern": "\\bcritical suppliers?\\b"},
+      {"label": "single source", "pattern": "\\bsingle source(?:d)?\\b"},
+      {"label": "sole supplier", "pattern": "\\bsole suppliers?\\b"},
+      {"label": "supply disruption", "pattern": "\\bsupply (?:chain )?(?:disruption|interruption|shortage)s?\\b"},
+      {"label": "foundry disruption", "pattern": "\\bfoundr(?:y|ies) (?:outage|disruption|constraint)s?\\b"},
+      {"label": "critical component", "pattern": "\\bcritical components? (?:shortage|failure|supplier)s?\\b"},
+      {"label": "cloud provider outage", "pattern": "\\bcloud (?:provider|service) (?:outage|disruption)s?\\b"}
+    ],
+    "cybersecurity": [
+      {"label": "cyberattack", "pattern": "\\bcyber ?attacks?\\b"},
+      {"label": "data breach", "pattern": "\\bdata breach(?:es)?\\b"},
+      {"label": "ransomware", "pattern": "\\bransomware\\b"},
+      {"label": "intrusion", "pattern": "\\b(?:network|system|security) intrusions?\\b"},
+      {"label": "data leak", "pattern": "\\bdata leaks?\\b"},
+      {"label": "security incident", "pattern": "\\bsecurity incidents?\\b"},
+      {"label": "unauthorized access", "pattern": "\\bunauthorized access\\b"},
+      {"label": "cyber service disruption", "pattern": "\\bcyber(?:security)? related service disruption\\b"}
+    ]
+  },
+  "decision_thresholds": {
+    "go_min_known_event_recall": 0.8,
+    "go_with_complements_min_known_event_recall": 0.6,
+    "go_min_useful_content_rate": 0.8
+  }
+}

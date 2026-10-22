@@ -1,0 +1,168 @@
+{
+  "protocol_version": "eodhd-known-episodes-v1",
+  "allowed_risk_families": [
+    "customer_concentration",
+    "critical_suppliers",
+    "cybersecurity"
+  ],
+  "episodes": [
+    {
+      "episode_id": "AAPL-2021-NSO-LAWSUIT",
+      "company": "AAPL",
+      "episode_name": "Demanda de Apple contra NSO por Pegasus y FORCEDENTRY",
+      "risk_family": "cybersecurity",
+      "source_case_ids": ["AAPL-01"],
+      "followup_case_ids": [],
+      "prior_filing_date": "2020-10-30",
+      "t0_filing_date": "2021-10-29",
+      "event_date_start": "2021-11-23",
+      "event_date_end": "2021-11-23",
+      "first_public_disclosure_at": "2021-11-23",
+      "article_published_at": "2021-11-23",
+      "known_urls": [
+        "https://www.apple.com/newsroom/2021/11/apple-sues-nso-group-to-curb-the-abuse-of-state-sponsored-spyware/"
+      ],
+      "official_source": "https://www.apple.com/newsroom/2021/11/apple-sues-nso-group-to-curb-the-abuse-of-state-sponsored-spyware/",
+      "notes": "El episodio evaluado es la demanda presentada por Apple, no la primera divulgación previa del exploit FORCEDENTRY.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    },
+    {
+      "episode_id": "AAPL-2022-ZHENGZHOU",
+      "company": "AAPL",
+      "episode_name": "Reducción de capacidad de ensamblaje en Zhengzhou",
+      "risk_family": "critical_suppliers",
+      "source_case_ids": ["AAPL-02"],
+      "followup_case_ids": [],
+      "prior_filing_date": "2021-10-29",
+      "t0_filing_date": "2022-10-28",
+      "event_date_start": "2022-11-06",
+      "event_date_end": "2022-11-06",
+      "first_public_disclosure_at": "2022-11-06",
+      "article_published_at": "2022-11-06",
+      "known_urls": [
+        "https://www.apple.com/newsroom/2022/11/update-on-supply-of-iphone-14-pro-and-iphone-14-pro-max/"
+      ],
+      "official_source": "https://www.apple.com/newsroom/2022/11/update-on-supply-of-iphone-14-pro-and-iphone-14-pro-max/",
+      "notes": "La fuente oficial identifica capacidad reducida, menores envíos esperados y dependencia del centro de ensamblaje y su proveedor.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    },
+    {
+      "episode_id": "MSFT-2023-STORM-0558",
+      "company": "MSFT",
+      "episode_name": "Acceso de Storm-0558 al correo de clientes",
+      "risk_family": "cybersecurity",
+      "source_case_ids": ["MSFT-04"],
+      "followup_case_ids": ["MSFT-08"],
+      "prior_filing_date": "2021-07-29",
+      "t0_filing_date": "2022-07-28",
+      "event_date_start": "2023-05-15",
+      "event_date_end": "2023-06-16",
+      "first_public_disclosure_at": "2023-07-11",
+      "article_published_at": "2023-07-11",
+      "known_urls": [
+        "https://www.microsoft.com/en-us/msrc/blog/2023/07/microsoft-mitigates-china-based-threat-actor-storm-0558-targeting-of-customer-email",
+        "https://www.govinfo.gov/content/pkg/CHRG-118hhrg58996/pdf/CHRG-118hhrg58996.pdf"
+      ],
+      "official_source": "https://www.microsoft.com/en-us/msrc/blog/2023/07/microsoft-mitigates-china-based-threat-actor-storm-0558-targeting-of-customer-email",
+      "notes": "MSFT-08 es seguimiento del mismo ataque y no se cuenta como episodio independiente.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    },
+    {
+      "episode_id": "MSFT-2024-MIDNIGHT-BLIZZARD",
+      "company": "MSFT",
+      "episode_name": "Ataque de Midnight Blizzard a sistemas corporativos",
+      "risk_family": "cybersecurity",
+      "source_case_ids": ["MSFT-05"],
+      "followup_case_ids": [],
+      "prior_filing_date": "2022-07-28",
+      "t0_filing_date": "2023-07-27",
+      "event_date_start": "2024-01-12",
+      "event_date_end": "2024-01-12",
+      "first_public_disclosure_at": "2024-01-19",
+      "article_published_at": "2024-01-19",
+      "known_urls": [
+        "https://www.sec.gov/Archives/edgar/data/789019/000119312524011295/d708866dex991.htm"
+      ],
+      "official_source": "https://www.sec.gov/Archives/edgar/data/789019/000119312524011295/d708866dex991.htm",
+      "notes": "Se usa la detección del 12-01-2024 como fecha conservadora; la fuente sitúa el inicio del acceso a finales de noviembre de 2023 sin día exacto.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    },
+    {
+      "episode_id": "MSFT-2024-CROWDSTRIKE-OUTAGE",
+      "company": "MSFT",
+      "episode_name": "Impacto de la actualización defectuosa de CrowdStrike",
+      "risk_family": "critical_suppliers",
+      "source_case_ids": ["MSFT-07"],
+      "followup_case_ids": [],
+      "prior_filing_date": "2022-07-28",
+      "t0_filing_date": "2023-07-27",
+      "event_date_start": "2024-07-18",
+      "event_date_end": "2024-07-20",
+      "first_public_disclosure_at": "2024-07-20",
+      "article_published_at": "2024-07-20",
+      "known_urls": [
+        "https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/"
+      ],
+      "official_source": "https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/",
+      "notes": "Se clasifica como dependencia crítica de software de terceros, no como ciberataque contra Microsoft.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    },
+    {
+      "episode_id": "TSLA-2023-IF-METALL",
+      "company": "TSLA",
+      "episode_name": "Huelga y bloqueo de IF Metall en Suecia",
+      "risk_family": "critical_suppliers",
+      "source_case_ids": ["TSLA-05"],
+      "followup_case_ids": [],
+      "prior_filing_date": "2022-02-07",
+      "t0_filing_date": "2023-01-31",
+      "event_date_start": "2023-10-27",
+      "event_date_end": "2023-10-27",
+      "first_public_disclosure_at": "2023-10-27",
+      "article_published_at": "2023-10-27",
+      "known_urls": [
+        "https://via.tt.se/pressmeddelande/3385358/strejk-mot-tesla-sverige-nu-inledd?lang=sv"
+      ],
+      "official_source": "https://via.tt.se/pressmeddelande/3385358/strejk-mot-tesla-sverige-nu-inledd?lang=sv",
+      "notes": "Se mantiene como candidato de dependencia operativa crítica por huelga, bloqueo y extensión anunciada a talleres; requiere confirmación humana de la familia.",
+      "used_for_filter_development": false,
+      "review_status": "candidate",
+      "reviewer": "ChatGPT-assisted"
+    }
+  ],
+  "exclusions": [
+    {
+      "status": "excluded_out_of_scope_family",
+      "case_ids": [
+        "AAPL-03", "AAPL-04", "AAPL-05", "AAPL-06", "AAPL-07",
+        "MSFT-01", "MSFT-02", "MSFT-03", "MSFT-06",
+        "META-01", "META-02", "META-03", "META-04", "META-05", "META-06",
+        "GOOGL-01", "GOOGL-02", "GOOGL-03", "GOOGL-04", "GOOGL-05", "GOOGL-06", "GOOGL-07",
+        "AMZN-01", "AMZN-02", "AMZN-03", "AMZN-04", "AMZN-05", "AMZN-06", "AMZN-07", "AMZN-08",
+        "NVDA-02", "NVDA-03", "NVDA-04", "NVDA-05", "NVDA-06", "NVDA-07",
+        "TSLA-01", "TSLA-02", "TSLA-04", "TSLA-06"
+      ],
+      "reason": "La ficha no describe un episodio perteneciente a customer_concentration, critical_suppliers o cybersecurity sin ampliar artificialmente la taxonomía."
+    },
+    {
+      "status": "excluded_outside_window",
+      "case_ids": ["NVDA-01"],
+      "reason": "La noticia conocida es de 2022-03-01, tres días posterior al final estricto de la ventana 2021-02-26 a 2022-02-26."
+    },
+    {
+      "status": "excluded_unverifiable_event_date",
+      "case_ids": ["TSLA-03"],
+      "reason": "La noticia describe prácticas históricas sin una fecha de acontecimiento concreta y verificable; la fecha de publicación no sustituye esa evidencia."
+    }
+  ]
+}
