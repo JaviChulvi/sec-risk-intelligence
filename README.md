@@ -119,6 +119,23 @@ inventarios JSON/CSV con estados y rutas relativas en `data/mag7_10k/`.
 Las descargas se pueden reanudar. No incluye enmiendas, llamadas a LLMs,
 noticias ni selección del último año; esa exploración se hará en otro notebook.
 
+## Descargar Noticias FNSPID y Medir Cobertura de las Mag7
+
+Usa `notebooks/mag7_fnspid_news.ipynb` después del notebook de 10-K. Requiere
+`data/mag7_10k/manifest.json` y los extras `notebook`; no necesita claves de API.
+Descarga los dos CSV originales de FNSPID (aproximadamente 29 GB), con revisión
+fijada, caché reanudable y comprobación SHA-256. Filtra por bloques los símbolos
+de las Mag7, incluidos `FB/META` y `GOOG/GOOGL`, y deduplica en SQLite.
+
+Guarda artículos, procedencia, tablas empresa/año, huecos, diagnóstico y un mapa
+de cobertura bajo `data/mag7_fnspid/`. Las ventanas se derivan del manifiesto SEC:
+años naturales completos desde el primer cierre/presentación hasta la última
+presentación. Distingue los años fuera del periodo FNSPID declarado (1999–2023)
+de los años sin noticias recuperadas. Un artículo no vacío no garantiza texto
+completo; se pierden noticias sin ticker y no se infiere ausencia de eventos.
+El notebook incluye las fuentes, la licencia académica/no comercial y las reglas
+de deduplicación. La descarga se reutiliza; el filtrado se repite si se interrumpe.
+
 ## Piloto Complementario de Noticias EODHD
 
 El piloto acotado de EODHD está documentado en
