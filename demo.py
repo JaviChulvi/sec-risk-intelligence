@@ -202,8 +202,9 @@ def main() -> None:
                 continue
 
             word_count = section.word_count
+            sentence_count = section.sentence_count
             char_count = len(section.text)
-            print(f"  Extracted {word_count:,} words ({char_count:,} chars)")
+            print(f"  Extracted {word_count:,} words ({sentence_count:,} sentences, {char_count:,} chars)")
 
             if char_count > 200_000:
                 print(

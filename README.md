@@ -119,6 +119,15 @@ inventarios JSON/CSV con estados y rutas relativas en `data/mag7_10k/`.
 Las descargas se pueden reanudar. No incluye enmiendas, llamadas a LLMs,
 noticias ni selección del último año; esa exploración se hará en otro notebook.
 
+## Piloto Complementario de Noticias EODHD
+
+El piloto acotado de EODHD está documentado en
+[`src/news/README.md`](src/news/README.md). Incluye un adaptador desacoplado,
+consultas reanudables, normalización, control de calidad del texto, deduplicación,
+filtro auditable de tres familias y propuestas de episodios. Las noticias permanecen
+separadas de las evals documentales. Los cuerpos y respuestas se conservan solo en
+rutas locales ignoradas por Git; el histórico completo requiere autorización expresa.
+
 ## Ejecutar el Baseline con DeepSeek
 
 Usa el notebook:

@@ -18,6 +18,7 @@ data-extraction = [
   "click>=7,<9",
   "cssutils>=1.0.2",
   "lxml>=4.9.4,<6",
+  "nltk>=3.8",
   "numpy>=1.26,<3",
   "pandas",
   "pathos>=0.2.9",
@@ -37,3 +38,6 @@ include = ["src*"]
 [tool.pytest.ini_options]
 testpaths = ["src/tests"]
 pythonpath = ["."]
+markers = [
+  "integration: requires an explicitly configured external API credential",
+]

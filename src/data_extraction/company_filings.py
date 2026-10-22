@@ -11,6 +11,7 @@ from src.data_extraction.edgar_crawler_adapter import (
     extract_item_with_edgar_crawler,
 )
 from src.data_extraction.sec_filings import FilingMetadata, SecCompanyClient, SecFilingError
+from src.text_analysis import count_sentences
 
 
 @dataclass(frozen=True)
@@ -24,6 +25,10 @@ class ExtractedFilingSection:
     @property
     def word_count(self) -> int:
         return len(self.text.split())
+
+    @property
+    def sentence_count(self) -> int:
+        return count_sentences(self.text)
 
     def to_eval_case(self, *, case_id_suffix: str = "risk-factor-listing") -> dict[str, Any]:
         ticker = self.metadata.ticker
@@ -47,6 +52,7 @@ class ExtractedFilingSection:
                 "section": self.section,
                 "source": self.extraction_source,
                 "word_count": self.word_count,
+                "sentence_count": self.sentence_count,
             },
             "input": {
                 "section": self.section,

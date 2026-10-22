@@ -6,8 +6,14 @@ eval_runs/
 __pycache__/
 *.pyc
 .env
+.env.*
+!.env.example
 *.egg-info/
 # Datasets
 datasets/
 # Logs
 logs/
+
+# Los cuerpos y respuestas de noticias pueden estar sujetos a licencia.
+data/restricted/news/eodhd/
+data/processed/eodhd_mag7/

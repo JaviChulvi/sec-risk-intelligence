@@ -1,0 +1,76 @@
+{
+  "protocol_version": "eodhd-known-episode-recovery-review-v1",
+  "review_status": "confirmed",
+  "reviewer": "human_user",
+  "confirmed_at": "2026-10-21",
+  "decisions": [
+    {
+      "episode_id": "AAPL-2021-NSO-LAWSUIT",
+      "recovered": true,
+      "representative_article_ids": [
+        "b74927436f5923d949d8026fa7974226ed380057395d239dcd202bb0ad4e65b9"
+      ],
+      "correct_family_candidate_found": true,
+      "family_evidence_article_ids": [
+        "b74927436f5923d949d8026fa7974226ed380057395d239dcd202bb0ad4e65b9"
+      ],
+      "notes": "Coincidencia directa con la demanda de Apple contra NSO y Pegasus."
+    },
+    {
+      "episode_id": "AAPL-2022-ZHENGZHOU",
+      "recovered": true,
+      "representative_article_ids": [
+        "2ce0f42baa59b6382ed7d420fc3acfbcbc7501e51b129b6095128ee1afe96ae4"
+      ],
+      "correct_family_candidate_found": true,
+      "family_evidence_article_ids": [
+        "c8ccc04d03661df8244e500a775d32515117f46318683b7b59566fa5c680c854"
+      ],
+      "notes": "Coincidencia directa con la capacidad reducida de Foxconn en Zhengzhou y los retrasos del iPhone."
+    },
+    {
+      "episode_id": "MSFT-2023-STORM-0558",
+      "recovered": true,
+      "representative_article_ids": [
+        "7682a0ea20586a73b4a7a9ac7d817c69de9896eaf236889dcfaf0818700a8b4d"
+      ],
+      "correct_family_candidate_found": true,
+      "family_evidence_article_ids": [
+        "e2bd0ba9bf029d49d3a1b4d92d001c36b06d41e4fa829e60ecb28a94c97fd26b"
+      ],
+      "notes": "La noticia identifica Storm-0558 y el acceso a cuentas de correo de clientes."
+    },
+    {
+      "episode_id": "TSLA-2023-IF-METALL",
+      "recovered": false,
+      "representative_article_ids": [],
+      "correct_family_candidate_found": false,
+      "family_evidence_article_ids": [],
+      "notes": "No se localizó una noticia sobre IF Metall o la huelga sueca; las coincidencias laborales correspondían a UAW."
+    },
+    {
+      "episode_id": "MSFT-2024-MIDNIGHT-BLIZZARD",
+      "recovered": true,
+      "representative_article_ids": [
+        "a6b837eaa69e913e202d739c10f35fe0a808b8f856c161e4250480280f28aacd"
+      ],
+      "correct_family_candidate_found": true,
+      "family_evidence_article_ids": [
+        "a6b837eaa69e913e202d739c10f35fe0a808b8f856c161e4250480280f28aacd"
+      ],
+      "notes": "Coincidencia directa con el acceso de Midnight Blizzard a correos de directivos."
+    },
+    {
+      "episode_id": "MSFT-2024-CROWDSTRIKE-OUTAGE",
+      "recovered": true,
+      "representative_article_ids": [
+        "7a899f441ab37efdf3fc792c73112ca5d952e4ef549e6ce83a1822e6f2bb7b36"
+      ],
+      "correct_family_candidate_found": true,
+      "family_evidence_article_ids": [
+        "fc25dbb80ddb7cace5f66a7592493214cc0516abb360cbb380c8db0eec28f08c"
+      ],
+      "notes": "El episodio se recupera y un artículo activa critical_suppliers; también genera activaciones espurias de cybersecurity."
+    }
+  ]
+}
