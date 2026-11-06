@@ -53,6 +53,25 @@ class EodhdPilotConfig:
         for family, entries in values["risk_rules"].items():
             if not entries or any(set(entry) != {"label", "pattern"} for entry in entries):
                 raise ValueError(f"Risk rules for {family} must contain label/pattern objects")
+        risk_filter = values.get("risk_filter", {})
+        if risk_filter:
+            if risk_filter.get("company_context_chars", 0) <= 0:
+                raise ValueError("risk_filter.company_context_chars must be positive")
+            unknown_companies = set(risk_filter.get("company_alias_patterns", {})) - set(values["companies"])
+            if unknown_companies:
+                raise ValueError(f"Unknown companies in risk_filter aliases: {sorted(unknown_companies)}")
+            for name in ("adverse_event_patterns", "family_suppression_rules"):
+                if not isinstance(risk_filter.get(name), list) or not risk_filter[name]:
+                    raise ValueError(f"risk_filter.{name} must be a non-empty list")
+            for entry in risk_filter["adverse_event_patterns"]:
+                if set(entry) != {"label", "pattern"}:
+                    raise ValueError("Adverse event rules must contain label/pattern objects")
+            for entry in risk_filter["family_suppression_rules"]:
+                required_rule = {"family", "when_family_present", "pattern"}
+                if set(entry) != required_rule:
+                    raise ValueError("Family suppression rules have invalid fields")
+                if {entry["family"], entry["when_family_present"]} - set(values["risk_rules"]):
+                    raise ValueError("Family suppression rules reference an unknown risk family")
 
     def __getitem__(self, key):
         return self.values[key]

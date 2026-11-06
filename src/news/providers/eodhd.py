@@ -45,7 +45,10 @@ class EodhdProvider(NewsProvider):
         self.sleeper = sleeper
         self.rng = rng or random.Random()
 
-    def fetch_page(self, request: PageRequest) -> ProviderPage:
+    def fetch_page(self, request: PageRequest, *, max_attempts: int | None = None) -> ProviderPage:
+        attempt_limit = self.max_attempts if max_attempts is None else min(self.max_attempts, max_attempts)
+        if attempt_limit < 1:
+            raise ValueError("max_attempts must be positive")
         params = {
             "s": request.window.ticker,
             "from": request.window.start.isoformat(),
@@ -55,15 +58,22 @@ class EodhdProvider(NewsProvider):
             "fmt": "json",
             "api_token": self._api_token,
         }
-        for attempt in range(1, self.max_attempts + 1):
+        for attempt in range(1, attempt_limit + 1):
+            network_error_type = None
             try:
                 response = self.session.get(self.endpoint, params=params, timeout=self.timeout_seconds)
             except requests.RequestException as exc:
-                if attempt == self.max_attempts:
+                network_error_type = type(exc).__name__
+                if attempt == attempt_limit:
                     raise ProviderError(
-                        f"EODHD request failed after {attempt} attempts ({type(exc).__name__})",
+                        f"EODHD request failed after {attempt} attempts ({network_error_type})",
                         attempts=attempt,
                     ) from None
+
+            # Sleep outside the exception handler. If the process is interrupted
+            # during backoff, Python must not chain a requests exception whose URL
+            # can contain the API token into the resulting traceback.
+            if network_error_type:
                 self._sleep(attempt)
                 continue
 
@@ -72,7 +82,7 @@ class EodhdProvider(NewsProvider):
                     f"EODHD authentication failed with HTTP {response.status_code}", attempts=attempt
                 )
             if response.status_code in RETRYABLE_STATUSES:
-                if attempt == self.max_attempts:
+                if attempt == attempt_limit:
                     raise ProviderResponseError(
                         f"EODHD returned retryable HTTP {response.status_code} after {attempt} attempts",
                         status_code=response.status_code,

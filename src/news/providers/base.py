@@ -26,5 +26,5 @@ class ProviderResponseError(ProviderError):
 
 class NewsProvider(ABC):
     @abstractmethod
-    def fetch_page(self, request: PageRequest) -> ProviderPage:
+    def fetch_page(self, request: PageRequest, *, max_attempts: int | None = None) -> ProviderPage:
         raise NotImplementedError

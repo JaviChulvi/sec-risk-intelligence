@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import pytest
 import requests
 
+from src.news.acquisition_budget import AcquisitionBudget
 from src.news.eodhd_config import EodhdPilotConfig
 from src.news.eodhd_pilot import EodhdPilot
 from src.news.providers import AuthenticationError, EodhdProvider, NewsProvider, ProviderResponseError
@@ -51,6 +52,17 @@ def test_retries_429_and_5xx_then_returns_page():
     assert sleeps == [0.1, 0.2]
 
 
+def test_per_call_attempt_limit_prevents_retry_past_budget():
+    session = Mock()
+    session.get.side_effect = [response(429, {}), response(200, [])]
+
+    with pytest.raises(ProviderResponseError) as error:
+        provider(session).fetch_page(PageRequest(query_window(), 1000, 0), max_attempts=1)
+
+    assert error.value.attempts == 1
+    assert session.get.call_count == 1
+
+
 def test_authentication_stops_without_retry_or_secret_in_error():
     session = Mock()
     session.get.return_value = response(401, {"message": "invalid top-secret-token"})
@@ -68,6 +80,21 @@ def test_network_exception_is_sanitized():
     assert "top-secret-token" not in str(error.value)
 
 
+def test_interrupted_network_backoff_does_not_chain_request_with_secret():
+    session = Mock()
+    session.get.side_effect = requests.RequestException(
+        "https://example.test?api_token=top-secret-token"
+    )
+
+    def interrupt(_):
+        raise KeyboardInterrupt("stop")
+
+    with pytest.raises(KeyboardInterrupt) as error:
+        provider(session, interrupt).fetch_page(PageRequest(query_window(), 1000, 0))
+
+    assert error.value.__context__ is None
+
+
 def test_unexpected_success_payload_is_rejected_and_sanitized():
     session = Mock()
     session.get.return_value = response(200, {"api_token": "top-secret-token", "message": "changed schema"})
@@ -81,7 +108,7 @@ class SyntheticProvider(NewsProvider):
         self.behaviour = behaviour
         self.requests = []
 
-    def fetch_page(self, request):
+    def fetch_page(self, request, *, max_attempts=None):
         self.requests.append(request)
         articles = self.behaviour(request)
         raw = json.dumps(articles).encode()
@@ -165,7 +192,7 @@ def test_offset_ceiling_splits_date_window(tmp_path):
 
 
 class RejectedProvider(NewsProvider):
-    def fetch_page(self, request):
+    def fetch_page(self, request, *, max_attempts=None):
         raise ProviderResponseError("synthetic rejected window", status_code=400, attempts=1)
 
 
@@ -177,6 +204,201 @@ def test_invalid_window_is_recorded_without_crashing_run(tmp_path):
     assert result["counts"]["http_calls"] == 1
     error = next(tmp_path.glob("data/restricted/news/eodhd/raw/**/error.sanitized.json"))
     assert "synthetic rejected window" in error.read_text()
+
+
+def test_article_budget_is_hard_and_reduces_last_page_size(tmp_path):
+    source = SyntheticProvider(
+        lambda request: [raw_article(request.offset + i) for i in range(request.limit)]
+    )
+    result = EodhdPilot(synthetic_config(), repository=tmp_path, provider=source).run(
+        mode="demo",
+        start=date(2026, 10, 18),
+        end=date(2026, 10, 18),
+        acquisition_budget=AcquisitionBudget(max_articles=3),
+    )
+
+    assert result["counts"]["articles"] == 3
+    assert result["acquisition_complete"] is False
+    assert result["acquisition_budget"]["stop_reason"] == "max_articles"
+    assert [request.limit for request in source.requests] == [2, 1]
+    assert next(tmp_path.glob("data/restricted/news/eodhd/normalized/**/articles.partial.jsonl"))
+
+
+def test_network_page_budget_stops_before_second_provider_request(tmp_path):
+    source = SyntheticProvider(
+        lambda request: [raw_article(request.offset + i) for i in range(request.limit)]
+    )
+    result = EodhdPilot(synthetic_config(), repository=tmp_path, provider=source).run(
+        mode="demo",
+        start=date(2026, 10, 18),
+        end=date(2026, 10, 18),
+        acquisition_budget=AcquisitionBudget(max_articles=10, max_network_pages=1),
+    )
+
+    assert len(source.requests) == 1
+    assert result["counts"]["articles"] == 2
+    assert result["acquisition_budget"]["stop_reason"] == "max_network_pages"
+
+
+def test_http_attempt_budget_stops_before_second_provider_request(tmp_path):
+    source = SyntheticProvider(
+        lambda request: [raw_article(request.offset + i) for i in range(request.limit)]
+    )
+    result = EodhdPilot(synthetic_config(), repository=tmp_path, provider=source).run(
+        mode="demo",
+        start=date(2026, 10, 18),
+        end=date(2026, 10, 18),
+        acquisition_budget=AcquisitionBudget(max_articles=10, max_http_attempts=1),
+    )
+
+    assert len(source.requests) == 1
+    assert result["acquisition_budget"]["http_attempts_used"] == 1
+    assert result["acquisition_budget"]["stop_reason"] == "max_http_attempts"
+
+
+def test_cached_complete_window_still_respects_article_budget(tmp_path):
+    source = SyntheticProvider(
+        lambda request: [raw_article(0), raw_article(1), raw_article(2)]
+    )
+    EodhdPilot(synthetic_config(limit=5, max_offset=10), repository=tmp_path, provider=source).run(
+        mode="demo", start=date(2026, 10, 18), end=date(2026, 10, 18)
+    )
+    failing = SyntheticProvider(lambda request: pytest.fail("completed cache called provider"))
+    result = EodhdPilot(
+        synthetic_config(limit=5, max_offset=10), repository=tmp_path, provider=failing
+    ).run(
+        mode="demo",
+        start=date(2026, 10, 18),
+        end=date(2026, 10, 18),
+        acquisition_budget=AcquisitionBudget(max_articles=2),
+    )
+
+    assert result["counts"]["articles"] == 2
+    assert result["windows"][0]["status"] == "budget_exhausted"
+
+
+def test_interleaved_plan_alternates_companies_before_later_months(tmp_path):
+    values = copy.deepcopy(EodhdPilotConfig.load(CONFIG).values)
+    values["companies"] = {
+        "AAPL": values["companies"]["AAPL"],
+        "MSFT": values["companies"]["MSFT"],
+    }
+    config = EodhdPilotConfig(Path("config/eodhd_pilot.json"), values)
+    windows = EodhdPilot(config, repository=tmp_path).plan(
+        mode="pilot",
+        start=date(2026, 1, 1),
+        end=date(2026, 3, 31),
+        interleave_companies=True,
+    )
+
+    assert [window.company for window in windows[:4]] == ["AAPL", "MSFT", "AAPL", "MSFT"]
+
+
+def test_breadth_first_visits_every_window_before_requesting_deeper_pages(tmp_path):
+    source = SyntheticProvider(
+        lambda request: [
+            raw_article(
+                request.offset + index,
+                request.window.start.isoformat(),
+            )
+            for index in range(request.limit)
+        ]
+    )
+    windows = [
+        query_window(start=date(2026, month, 1), end=date(2026, month, 28))
+        for month in (1, 2, 3)
+    ]
+
+    result = EodhdPilot(
+        synthetic_config(limit=4, max_offset=20), repository=tmp_path, provider=source
+    ).run_windows(
+        mode="demo",
+        windows=windows,
+        breadth_first_pages=True,
+        acquisition_budget=AcquisitionBudget(max_articles=6),
+    )
+
+    assert [(request.window.start.month, request.offset) for request in source.requests] == [
+        (1, 0), (2, 0), (3, 0),
+    ]
+    assert {request.limit for request in source.requests} == {2}
+    assert result["page_traversal"] == "breadth_first"
+    assert result["acquisition_budget"]["articles_used"] == 6
+    assert result["counts"]["windows_skipped_budget"] == 0
+    assert result["counts"]["windows_incomplete_budget"] == 3
+
+
+def test_breadth_first_deduplicates_company_article_before_charging_budget(tmp_path):
+    def article(name):
+        return {
+            "date": "2026-01-01",
+            "title": name,
+            "content": name,
+            "link": f"https://example.test/{name}",
+            "symbols": ["AAPL.US"],
+        }
+
+    sequences = {
+        1: [article("shared"), article("january")],
+        2: [article("shared"), article("february")],
+    }
+    source = SyntheticProvider(
+        lambda request: sequences[request.window.start.month][
+            request.offset:request.offset + request.limit
+        ]
+    )
+    windows = [
+        query_window(start=date(2026, month, 1), end=date(2026, month, 28))
+        for month in (1, 2)
+    ]
+
+    result = EodhdPilot(
+        synthetic_config(limit=2, max_offset=10), repository=tmp_path, provider=source
+    ).run_windows(
+        mode="demo",
+        windows=windows,
+        breadth_first_pages=True,
+        acquisition_budget=AcquisitionBudget(max_articles=3),
+    )
+
+    assert [(request.window.start.month, request.offset) for request in source.requests] == [
+        (1, 0), (2, 0), (1, 1), (2, 1),
+    ]
+    assert result["counts"]["articles"] == 3
+    assert result["acquisition_budget"]["articles_used"] == 3
+    assert result["acquisition_budget"]["records_considered"] == 4
+    assert result["acquisition_budget"]["duplicate_records_skipped_before_budget"] == 1
+    assert result["counts"]["records_deduplicated_before_budget"] == 1
+
+
+def test_breadth_first_slices_large_cached_page_without_starving_other_window(tmp_path):
+    config = synthetic_config(limit=5, max_offset=20)
+    january = query_window(start=date(2026, 1, 1), end=date(2026, 1, 31))
+    february = query_window(start=date(2026, 2, 1), end=date(2026, 2, 28))
+    cache_source = SyntheticProvider(
+        lambda request: [
+            raw_article(index, request.window.start.isoformat()) for index in range(4)
+        ]
+    )
+    EodhdPilot(config, repository=tmp_path, provider=cache_source).run_windows(
+        mode="demo", windows=[january]
+    )
+    live_source = SyntheticProvider(
+        lambda request: [raw_article(10, request.window.start.isoformat())]
+    )
+
+    result = EodhdPilot(config, repository=tmp_path, provider=live_source).run_windows(
+        mode="demo",
+        windows=[january, february],
+        breadth_first_pages=True,
+        acquisition_budget=AcquisitionBudget(max_articles=2),
+    )
+
+    assert [(request.window.start.month, request.limit) for request in live_source.requests] == [
+        (2, 1),
+    ]
+    assert result["counts"]["articles"] == 2
+    assert result["counts"]["cached_pages_used"] == 1
 
 
 @pytest.mark.integration

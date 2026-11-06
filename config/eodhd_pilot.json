@@ -69,7 +69,13 @@
       {"label": "supply disruption", "pattern": "\\bsupply (?:chain )?(?:disruption|interruption|shortage)s?\\b"},
       {"label": "foundry disruption", "pattern": "\\bfoundr(?:y|ies) (?:outage|disruption|constraint)s?\\b"},
       {"label": "critical component", "pattern": "\\bcritical components? (?:shortage|failure|supplier)s?\\b"},
-      {"label": "cloud provider outage", "pattern": "\\bcloud (?:provider|service) (?:outage|disruption)s?\\b"}
+      {"label": "cloud provider outage", "pattern": "\\bcloud (?:provider|service) (?:outage|disruption)s?\\b"},
+      {"label": "technology outage", "pattern": "\\b(?:global |worldwide )?(?:it|tech(?:nology)?) (?:outage|crash|meltdown|collapse)\\b"},
+      {"label": "software update failure", "pattern": "\\b(?:(?:software|content|security) update|(?:faulty|botched|bad) (?:patch|code)|bug in an update)\\b"},
+      {"label": "facility shutdown", "pattern": "\\b(?:assembly )?(?:factory|plant|facility) .{0,80}\\b(?:shutdown|shut down|closed|closure|lockdown|reduced capacity)\\b"},
+      {"label": "supplier failure", "pattern": "\\b(?:supplier|provider|vendor) .{0,80}\\b(?:outage|failure|disruption|faulty (?:update|patch))\\b"},
+      {"label": "constrained production", "pattern": "\\b(?:supply|production) of .{0,80}\\b(?:reduced|constrained|disrupted|shortage)\\b"},
+      {"label": "provider dependency", "pattern": "\\bdependent on (?:a )?(?:few|single|one) (?:critical )?(?:providers?|vendors?|suppliers?)\\b"}
     ],
     "cybersecurity": [
       {"label": "cyberattack", "pattern": "\\bcyber ?attacks?\\b"},
@@ -79,7 +85,39 @@
       {"label": "data leak", "pattern": "\\bdata leaks?\\b"},
       {"label": "security incident", "pattern": "\\bsecurity incidents?\\b"},
       {"label": "unauthorized access", "pattern": "\\bunauthorized access\\b"},
-      {"label": "cyber service disruption", "pattern": "\\bcyber(?:security)? related service disruption\\b"}
+      {"label": "cyber service disruption", "pattern": "\\bcyber(?:security)? related service disruption\\b"},
+      {"label": "malicious software", "pattern": "\\b(?:spyware|malware)\\b"},
+      {"label": "hack or breach", "pattern": "\\b(?:hack(?:ed|ers?|ing)|breach(?:ed|es|ing))\\b"}
+    ]
+  },
+  "risk_filter": {
+    "company_context_chars": 180,
+    "company_alias_patterns": {
+      "AAPL": "\\b(?:apple|iphone|ipad|mac(?:book|os)?|ios)\\b",
+      "MSFT": "\\b(?:microsoft|windows|azure|office\\s*365|microsoft\\s*365|msft)\\b",
+      "GOOGL": "\\b(?:alphabet|google|youtube|android)\\b",
+      "AMZN": "\\b(?:amazon|aws)\\b",
+      "NVDA": "\\b(?:nvidia|nvda|geforce)\\b",
+      "META": "\\b(?:meta|facebook|instagram|whatsapp)\\b",
+      "TSLA": "\\b(?:tesla|tsla)\\b"
+    },
+    "adverse_event_patterns": [
+      {"label": "operational disruption", "pattern": "\\b(?:outage|failure|failed|disruption|disrupted|interruption|shortage|shutdown|shut down|closure|closed|lockdown|reduced capacity|lower shipments|delay|delays|cancellation|cancellations|crash|crashed|meltdown|collapse)\\b"},
+      {"label": "cyber compromise", "pattern": "\\b(?:attack|attacked|attacks|cyber ?attack|cyber ?attacks|hack|hacked|hacker|hackers|hacking|breach|breached|breaches|breaching|intrusion|spyware|malware|ransomware|unauthorized access|infected|compromised|stolen|leak|leaked|leaks)\\b"},
+      {"label": "customer loss", "pattern": "\\b(?:lost|loss|terminated|reduced|cut|decreased)\\b.{0,50}\\b(?:customer|contract|purchase|purchases|order|orders|revenue)\\b"},
+      {"label": "harm or legal response", "pattern": "\\b(?:lawsuit|sue|sues|abuse|targeted|targeting)\\b"}
+    ],
+    "family_suppression_rules": [
+      {
+        "family": "cybersecurity",
+        "when_family_present": "critical_suppliers",
+        "pattern": "\\b(?:(?:not|was not|wasn t|is not|isn t) .{0,35}(?:security incident|cyber ?attack|breach)|cyber ?attack response services|(?:outage|meltdown|collapse|crash) .{0,120}(?:update|patch|bug|glitch|fault)|(?:update|patch|bug|glitch|fault) .{0,120}(?:outage|meltdown|collapse|crash))\\b"
+      },
+      {
+        "family": "customer_concentration",
+        "when_family_present": "critical_suppliers",
+        "pattern": "\\b(?:dependent on (?:a )?(?:few|single|one) (?:critical )?(?:providers?|vendors?|suppliers?)|(?:outage|failure|update|patch) .{0,120}(?:provider|vendor|supplier))\\b"
+      }
     ]
   },
   "decision_thresholds": {

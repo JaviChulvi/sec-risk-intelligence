@@ -1,0 +1,105 @@
+{
+  "protocol_version": "eodhd-mag7-company-holdout-v2",
+  "unit": "article_company_relation",
+  "target_risk_families": [
+    "cybersecurity",
+    "critical_suppliers"
+  ],
+  "dataset_periods": {
+    "train": {
+      "from": "2021-01-01",
+      "to": "2026-09-30",
+      "status": "development_period_including_previously_inspected_training_data"
+    },
+    "validation": {
+      "from": "2026-01-01",
+      "to": "2026-09-30",
+      "status": "uninspected_at_protocol_freeze"
+    },
+    "test": {
+      "from": "2026-01-01",
+      "to": "2026-09-30",
+      "status": "uninspected_at_protocol_freeze"
+    }
+  },
+  "splits": {
+    "train": ["AAPL", "MSFT", "GOOGL", "NVDA"],
+    "validation": ["AMZN"],
+    "test": ["META", "TSLA"]
+  },
+  "target_candidates": {
+    "per_company": 200,
+    "train": 800,
+    "validation": 200,
+    "test": 400,
+    "total": 1400
+  },
+  "acquisition_plan": {
+    "strategy": "monthly_breadth_first",
+    "train_ticker_month_windows": 345,
+    "initial_network_page_cap": 1080,
+    "initial_http_attempt_cap": 1200,
+    "initial_unique_relation_cap": 120000,
+    "stop_policy": "complete sparse windows early and deepen only windows with another provider page"
+  },
+  "filter_freeze": {
+    "status": "pending",
+    "reason": "The two-family candidate filter must be tuned and frozen on train after human review before validation or test is opened"
+  },
+  "blind_data_policy": {
+    "rule_tuning_allowed_splits": ["train"],
+    "validation_and_test_must_not_influence_filter_rules": true,
+    "cross_split_duplicate_policy": "keep_in_highest_priority_split_train_then_validation_then_test_and_exclude_from_lower_priority_splits",
+    "excluded_company_periods": {
+      "AMZN": [
+        {
+          "from": "2021-01-01",
+          "to": "2025-12-31",
+          "reason": "Conservative exclusion covering the inspected reference inventory"
+        },
+        {
+          "from": "2026-10-13",
+          "to": "2026-10-19",
+          "reason": "Previously acquired and used in filter development"
+        }
+      ],
+      "META": [
+        {
+          "from": "2021-01-01",
+          "to": "2025-12-31",
+          "reason": "Conservative exclusion covering the inspected reference inventory"
+        }
+      ],
+      "TSLA": [
+        {
+          "from": "2021-01-01",
+          "to": "2025-12-31",
+          "reason": "Conservative exclusion covering the inspected reference inventory and development windows"
+        },
+        {
+          "from": "2026-10-13",
+          "to": "2026-10-19",
+          "reason": "Previously acquired and used in filter development"
+        }
+      ]
+    },
+    "excluded_development_artifacts": [
+      {
+        "path": "data/reference/news_mag7/known_cases_review.csv",
+        "sha256": "a21103f798f0a128acf4f881c0914de4c1ff56cf73abc1e802d6ff81056328c4"
+      },
+      {
+        "path": "data/processed/eodhd_mag7/risk_news_development_review.csv",
+        "sha256": "af165e520c0659c57f6f0759d6c41a364f2535b5eab29598b3dbc919c00fbad1"
+      },
+      {
+        "path": "data/processed/eodhd_mag7/risk_news_revised_new_candidates_review.csv",
+        "sha256": "6517842314b76063a98fafddce387db17b8404d6d5c75092572768c8fa0910cd"
+      },
+      {
+        "path": "data/processed/eodhd_mag7/datasets/mag7-risk-train-2026-bf1/risk_news_candidates_review.csv",
+        "sha256": "7dbbca0d5aa9414cc970841816e8a3444e58cdb7835c8a3859e6e8a7d5f41505"
+      }
+    ]
+  }
+}
