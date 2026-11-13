@@ -145,6 +145,18 @@ filtro auditable de tres familias y propuestas de episodios. Las noticias perman
 separadas de las evals documentales. Los cuerpos y respuestas se conservan solo en
 rutas locales ignoradas por Git; el histórico completo requiere autorización expresa.
 
+## Anotar las 40 Noticias de Calibración
+
+La app y sus archivos están en [`news-calibration/`](news-calibration/README.md).
+Coloca el CSV original en `news-calibration/samples/` y ejecuta:
+
+```bash
+python3 news-calibration/server.py
+```
+
+Abre `http://127.0.0.1:8765/`, selecciona tu nombre y anota. Cada guardado actualiza
+`news-calibration/annotations/calibration_sample_40_<nombre>.csv`.
+
 ## Ejecutar el Baseline con DeepSeek
 
 Usa el notebook:

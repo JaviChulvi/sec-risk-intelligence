@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calibración de noticias · SEC Risk Intelligence</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="heading"><h1>Anotar noticias</h1><span id="progress-label" class="muted">Sin muestra cargada</span></div>
+    <div class="actions">
+      <label class="reviewer-label" for="reviewer">Revisor <select id="reviewer" disabled></select></label>
+      <details class="file-menu"><summary>Archivo</summary><div class="file-options">
+        <label class="sample-label" for="samples">Muestra <select id="samples" disabled></select></label>
+        <label class="button" for="csv">Cargar otro CSV</label>
+        <input id="csv" type="file" accept=".csv,text/csv" class="file-input">
+      </div></details>
+      <button id="export" disabled>Descargar CSV</button>
+    </div>
+  </header>
+  <main>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <button id="reload" hidden>Descartar borrador y recargar guardado</button>
+    <section id="workspace">
+      <div class="review-grid">
+        <article class="article">
+          <div class="article-meta"><strong id="company">Empresa</strong><span id="date"></span><a id="source" target="_blank" rel="noopener noreferrer" hidden>Ver original ↗</a></div>
+          <h2 id="title" tabindex="-1">Sin noticia seleccionada</h2>
+          <p id="no-source" class="muted" hidden>Este registro no tiene un enlace web válido. Solicita el texto de la noticia.</p>
+          <iframe id="article-frame" title="Noticia original" sandbox referrerpolicy="no-referrer" hidden></iframe>
+          <details class="reading-details"><summary>Acerca del texto disponible</summary><span id="content-state" class="muted"></span><p id="reading-help" class="muted">Carga el CSV de calibración para empezar.</p></details>
+        </article>
+        <form id="review" novalidate>
+          <fieldset id="annotation-fields" disabled>
+          <h2>¿Hay un riesgo para <span id="risk-company">esta empresa</span>?</h2>
+          <fieldset class="decision"><legend class="sr-only">Relevancia de la noticia</legend><label><input type="radio" name="relevant_risk_news" value="true"> Sí, es relevante</label><label><input type="radio" name="relevant_risk_news" value="false"> No es relevante</label><label><input type="radio" name="relevant_risk_news" value=""> Tengo dudas</label></fieldset>
+          <section id="company-question"><label for="company_relevance">¿El hecho afecta a <span id="relevance-company">esta empresa</span>?</label>
+          <select id="company_relevance"><option value="">Selecciona una opción</option><option value="true">Sí, está afectada o expuesta</option><option value="false">No, se refiere a otra empresa</option><option value="unclear">No puedo determinarlo</option></select>
+          </section>
+          <section id="positive" hidden>
+            <fieldset class="families"><legend>Familia confirmada</legend><label><input type="checkbox" name="family" value="cybersecurity"> Ciberseguridad</label><label><input type="checkbox" name="family" value="critical_suppliers"> Proveedores críticos</label></fieldset>
+            <label for="event_status">Estado del riesgo</label><select id="event_status"><option value="">Selecciona una opción</option><option value="materialized">Materializado: el incidente ya ocurrió</option><option value="exposure">Exposición: dependencia o vulnerabilidad actual</option><option value="emerging">Emergente: amenaza nueva y concreta</option></select>
+          </section>
+          <section id="negative" hidden><label for="noise_type">Motivo por el que no es relevante</label><select id="noise_type"><option value="">Selecciona un motivo</option><option value="other_company">Trata de otra empresa</option><option value="wrong_relationship_direction">Relación comercial invertida</option><option value="sector_level_only">Riesgo sectorial sin vínculo concreto</option><option value="product_or_service_promotion">Promoción de un producto o servicio</option><option value="stock_analysis">Análisis o recomendación bursátil</option><option value="recommendation_widget">Enlace o recomendación ajena a la noticia</option><option value="regulatory_not_cyber">Regulación sin ciberseguridad</option><option value="legal_not_cyber">Asunto legal sin ciberseguridad</option><option value="privacy_compliance_not_cyber">Privacidad sin ciberseguridad</option><option value="hypothetical">Hipótesis o predicción genérica</option><option value="contextual_mention_insufficient">Mención insuficiente</option><option value="lexical_ambiguity">Ambigüedad de una palabra</option><option value="wrong_risk_family">Riesgo de otra familia</option><option value="demand_not_supplier_failure">Demanda, no fallo de proveedor</option></select></section>
+          <label for="notes">Nota</label><textarea id="notes" rows="3" placeholder="Evidencia, motivo o duda."></textarea>
+          <p id="form-error" class="error" role="alert" hidden></p>
+          <div class="form-actions"><button id="complete" class="primary" type="submit">Guardar y siguiente</button><button id="save-draft" type="button">Guardar borrador</button><button id="defer" type="button">Dejar pendiente</button></div>
+          </fieldset>
+          <p id="saved" class="muted" role="status">Guardado separado por revisor</p>
+          <nav class="navigation" aria-label="Navegación entre noticias">
+            <button id="previous" type="button" disabled>Anterior</button>
+            <label class="jump-label" for="jump"><span class="sr-only">Noticia</span><select id="jump" disabled><option>Sin noticias cargadas</option></select></label>
+            <button id="next" type="button" disabled>Siguiente</button>
+            <button id="pending" type="button" disabled>Ir a pendiente</button>
+          </nav>
+        </form>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
