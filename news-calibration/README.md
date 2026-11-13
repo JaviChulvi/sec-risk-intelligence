@@ -59,7 +59,8 @@ se conserva **Abrir noticia original**. Un error de lectura no impide anotar.
 
 Los perfiles son locales, sin cuentas ni autenticación. El servidor escucha
 solo en este ordenador; cada compañero puede ejecutar su propia copia con la
-misma muestra y entregar su CSV. Los CSV de muestras y anotaciones están excluidos de Git.
+misma muestra y entregar su CSV. La muestra original se incluye en el repositorio;
+los archivos de cada revisor se generan localmente al guardar.
 Para usar otra carpeta o puerto: `--data-dir RUTA --port 8766`.
 
 Este flujo carga la muestra ya seleccionada por Higinio. No necesita
