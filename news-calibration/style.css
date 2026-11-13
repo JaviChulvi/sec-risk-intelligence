@@ -1,0 +1,95 @@
+:root {
+  color-scheme: light;
+  --paper: #f7f8f6; --ink: #263c39; --muted: #5d6b66; --line: #d2d8ce;
+  --accent: #205c48; --wash: #e8eee5; --error: #9b3025;
+  font: 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink); background: var(--paper);
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select, textarea { font: inherit; }
+button, .button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 5px;
+  background: white; color: var(--ink); text-decoration: none; font-weight: 600; cursor: pointer;
+}
+button:hover, .button:hover { background: var(--wash); }
+.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.primary:hover { background: #174735; color: white; }
+button:disabled, fieldset:disabled { opacity: .55; }
+button:disabled { cursor: default; }
+a { color: var(--accent); text-underline-offset: 4px; }
+:focus-visible { outline: 3px solid #bd6d32; outline-offset: 3px; }
+::selection { background: #d1dfc8; }
+input, textarea { caret-color: var(--accent); }
+[hidden] { display: none !important; }
+header { padding: 10px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; align-items: center; background: white; }
+.heading { display: flex; align-items: baseline; gap: 16px; }
+.actions { display: flex; gap: 12px; align-items: center; }
+.reviewer-label, .sample-label { display: flex; align-items: center; gap: 8px; }
+.reviewer-label select, .sample-label select { margin: 0; width: auto; max-width: 100%; }
+.sample-label { display: block; min-width: 0; }
+.sample-label select { min-width: 0; width: 100%; margin: 6px 0 14px; }
+.file-menu { position: relative; }
+summary { cursor: pointer; padding: 10px 0; }
+.file-options { position: absolute; right: 0; top: 100%; width: 320px; max-width: calc(100vw - 32px); z-index: 2; padding: 16px; background: white; border: 1px solid var(--line); border-radius: 5px; }
+.file-input, .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+main { max-width: 1500px; margin: auto; padding: 24px; }
+h1, h2, h3, p { margin: 0; }
+h1 { font-size: 1.2rem; font-weight: 650; }
+h2 { font-size: 1.25rem; font-weight: 650; }
+p { line-height: 1.6; }
+.muted { color: var(--muted); font-size: .9rem; }
+#progress-label { font-variant-numeric: tabular-nums; }
+.navigation { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 20px; }
+.jump-label { flex: 1; min-width: 0; }
+.jump-label select { width: 100%; min-width: 0; margin: 0; }
+#pending { border: 0; padding: 4px 0; min-height: 36px; font-weight: 400; background: none; text-decoration: underline; text-underline-offset: 4px; flex-basis: 100%; justify-content: start; }
+.review-grid { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(340px,1fr); gap: 28px; align-items: start; }
+.article { min-width: 0; }
+.article-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: .85rem; color: var(--muted); align-items: center; }
+.article-meta strong { background: var(--accent); color: white; padding: 8px 12px; font-size: 1.2rem; font-weight: 700; border-radius: 4px; }
+.article-meta a { margin-left: auto; }
+.article h2 { font-size: 1.5rem; line-height: 1.35; margin: 14px 0 20px; overflow-wrap: anywhere; }
+#title:focus { outline: none; }
+.reading-details { margin-top: 4px; color: var(--muted); font-size: .9rem; }
+#article-frame { display: block; width: 100%; height: calc(100vh - 230px); min-height: 440px; border: 1px solid var(--line); border-radius: 5px; background: white; }
+#reload { margin-bottom: 16px; }
+input[type=file] { max-width: 100%; }
+form { border-left: 1px solid var(--line); padding-left: 28px; position: sticky; top: 16px; }
+form h2 { margin-bottom: 8px; }
+#annotation-fields { margin: 0; min-width: 0; }
+#annotation-fields > label, form section > label { display: block; font-weight: 600; margin-top: 15px; }
+select, input[type=text], textarea { display: block; width: 100%; border: 1px solid #a2afa3; background: white; color: var(--ink); border-radius: 5px; padding: 9px 10px; margin-top: 6px; min-height: 40px; }
+textarea { resize: vertical; line-height: 1.5; }
+textarea::placeholder, input::placeholder { color: var(--muted); }
+fieldset { border: 0; padding: 0; margin: 16px 0; }
+.decision { display: flex; flex-wrap: wrap; gap: 7px; }
+.decision label { padding: 10px; border: 1px solid var(--line); border-radius: 5px; font-size: .9rem; cursor: pointer; }
+.decision label:has(input:checked) { background: var(--wash); border-color: var(--accent); }
+input[type=radio], input[type=checkbox] { accent-color: var(--accent); margin: 0 5px 0 0; }
+.families legend { font-weight: 600; margin-bottom: 5px; }
+.families label { display: inline-block; padding: 8px 15px 8px 0; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+#saved { margin-top: 12px; }
+.error, #notice { padding: 12px 14px; margin: 0 0 16px; background: #faeae3; color: var(--error); border: 1px solid #ddb2a3; border-radius: 5px; }
+.error { margin-top: 14px; }
+#notice.success { background: var(--wash); color: var(--ink); border-color: var(--line); }
+@media (max-width: 950px) {
+  .heading { flex-direction: column; gap: 5px; }
+  .review-grid { grid-template-columns: minmax(0,1fr) minmax(320px,1fr); gap: 20px; }
+  form { padding-left: 20px; }
+}
+@media (max-width: 680px) {
+  header { padding: 10px 16px; flex-direction: column; align-items: stretch; gap: 8px; }
+  .heading { flex-direction: row; gap: 12px; }
+  .actions { justify-content: space-between; gap: 8px; }
+  .actions button, .actions label { font-size: .85rem; }
+  .reviewer-label { gap: 6px; }
+  .file-options { right: -90px; }
+  main { padding: 16px; }
+  .review-grid { grid-template-columns: 1fr; gap: 24px; }
+  form { border-left: 0; border-top: 1px solid var(--line); padding: 24px 0 0; position: static; }
+  #article-frame { height: 55vh; min-height: 320px; }
+  .navigation > button { font-size: .85rem; padding-inline: 8px; }
+}
