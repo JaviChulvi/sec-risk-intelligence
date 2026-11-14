@@ -75,6 +75,20 @@ python3 -m src.news eodhd dataset-calibration-sample \
   --annotators Javi Hugo Higinio --sample-size 40 \
   --seed mag7-risk-calibration-2021-2026-v1
 
+# Validar las tres anotaciones completas y guardar acuerdos y discrepancias
+python3 -m src.news eodhd dataset-calibration-compare \
+  --manifest data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_sample_40_manifest.json \
+  --reviews \
+    data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_sample_40_javi.csv \
+    data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_sample_40_hugo.csv \
+    data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_sample_40_higinio.csv \
+  --output data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_comparison.json
+
+# Crear la hoja protegida para resolver únicamente las discrepancias
+python3 -m src.news eodhd dataset-calibration-consensus-sheet \
+  --comparison data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_comparison.json \
+  --output data/processed/eodhd_mag7/datasets/mag7-risk-train-2021-2026-bf1/calibration/calibration_consensus.csv
+
 # Generar el informe sin repetir descargas
 python3 -m src.news eodhd report --config config/eodhd_pilot.json
 

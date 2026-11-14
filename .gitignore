@@ -14,6 +14,62 @@ datasets/
 # Logs
 logs/
 
+# LaTeX compilation artifacts
+/latex/**/*.aux
+/latex/**/*.auxlock
+/latex/**/*.bbl
+/latex/**/*.bcf
+/latex/**/*.blg
+/latex/**/*.dvi
+/latex/**/*.fdb_latexmk
+/latex/**/*.fls
+/latex/**/*.glg
+/latex/**/*.glo
+/latex/**/*.gls
+/latex/**/*.idx
+/latex/**/*.ilg
+/latex/**/*.ind
+/latex/**/*.ist
+/latex/**/*.loa
+/latex/**/*.loe
+/latex/**/*.lof
+/latex/**/*.log
+/latex/**/*.lol
+/latex/**/*.lot
+/latex/**/*.maf
+/latex/**/*.mtc
+/latex/**/*.mtc0
+/latex/**/*.mw
+/latex/**/*.nav
+/latex/**/*.nlo
+/latex/**/*.nls
+/latex/**/*.out
+/latex/**/*.pdfsync
+/latex/**/*.run.xml
+/latex/**/*.snm
+/latex/**/*.spl
+/latex/**/*.synctex
+/latex/**/*.synctex(busy)
+/latex/**/*.synctex.gz
+/latex/**/*.thm
+/latex/**/*.toc
+/latex/**/*.upa
+/latex/**/*.upb
+/latex/**/*.vrb
+/latex/**/*.xdv
+/latex/**/*.acn
+/latex/**/*.acr
+/latex/**/*.alg
+/latex/**/*.glsdefs
+/latex/**/*.listing
+/latex/**/*.pyg
+/latex/**/*.xdy
+/latex/**/_minted-*/
+/latex/**/.rubbercache/
+
+# PDFs built from the top-level LaTeX documents; keep PDFs used as figures.
+/latex/*.pdf
+
 # Los cuerpos y respuestas de noticias pueden estar sujetos a licencia.
 data/restricted/news/eodhd/
 data/processed/eodhd_mag7/

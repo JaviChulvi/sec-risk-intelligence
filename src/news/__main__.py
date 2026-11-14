@@ -22,6 +22,8 @@ from .reference_filter import ReferenceEpisodeFilter
 from .risk_news_development_review import RiskNewsDevelopmentReviewBuilder
 from .risk_news_development_metrics import RiskNewsDevelopmentMetricsBuilder
 from .risk_news_revised_candidate_review import RevisedRiskNewsCandidateReviewBuilder
+from .risk_news_calibration_comparison import RiskNewsCalibrationComparator
+from .risk_news_calibration_consensus import RiskNewsCalibrationConsensusBuilder
 from .risk_news_calibration_sample import RiskNewsCalibrationSampler
 from .risk_news_review_sheet import PackagedRiskNewsReviewBuilder
 from .risk_news_dataset import RiskNewsDatasetPackager
@@ -332,6 +334,25 @@ def build_parser() -> argparse.ArgumentParser:
     calibration.add_argument(
         "--seed", default="mag7-risk-calibration-2021-2026-v1"
     )
+    calibration_compare = commands.add_parser(
+        "dataset-calibration-compare",
+        help="Validate completed calibration reviews and write exact agreement metrics",
+    )
+    calibration_compare.add_argument("--manifest", type=Path, required=True)
+    calibration_compare.add_argument(
+        "--reviews",
+        type=Path,
+        nargs="+",
+        required=True,
+        help="Completed independent annotator CSV files",
+    )
+    calibration_compare.add_argument("--output", type=Path, required=True)
+    calibration_consensus = commands.add_parser(
+        "dataset-calibration-consensus-sheet",
+        help="Create a protected consensus CSV from calibration discrepancies",
+    )
+    calibration_consensus.add_argument("--comparison", type=Path, required=True)
+    calibration_consensus.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -345,6 +366,19 @@ def main() -> None:
             output_dir=args.output_dir,
             annotators=args.annotators,
             sample_size=args.sample_size,
+        ), indent=2))
+        return
+    if args.command == "dataset-calibration-compare":
+        print(json.dumps(RiskNewsCalibrationComparator().build(
+            manifest_path=args.manifest,
+            review_paths=args.reviews,
+            output_path=args.output,
+        ), indent=2))
+        return
+    if args.command == "dataset-calibration-consensus-sheet":
+        print(json.dumps(RiskNewsCalibrationConsensusBuilder().build(
+            comparison_path=args.comparison,
+            output_path=args.output,
         ), indent=2))
         return
     if args.command == "dataset-review-sheet":

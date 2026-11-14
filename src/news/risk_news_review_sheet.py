@@ -33,6 +33,91 @@ REVIEW_SHEET_FIELDS = (
 )
 
 
+def reviewer_slug(value: str) -> str:
+    slug = "".join(character for character in value.casefold() if character.isalnum())
+    if not slug:
+        raise ValueError("Reviewer name must contain at least one alphanumeric character")
+    return slug
+
+
+class RiskNewsAnnotationValidator:
+    """Validate the annotation fields shared by risk-news review workflows."""
+
+    EVENT_STATES = {"materialized", "exposure", "emerging"}
+    COMPANY_RELEVANCE_VALUES = {"true", "false", "unclear"}
+
+    def __init__(
+        self,
+        *,
+        families: set[str],
+        require_company_relevance: bool = False,
+        require_positive_event_status: bool = True,
+        require_positive_company_relevance: bool = False,
+    ):
+        if not families:
+            raise ValueError("At least one risk family is required")
+        self.families = set(families)
+        self.require_company_relevance = require_company_relevance
+        self.require_positive_event_status = require_positive_event_status
+        self.require_positive_company_relevance = require_positive_company_relevance
+
+    def errors(self, row: dict[str, str], *, row_number: int) -> list[str]:
+        errors = []
+        if row["review_status"] != "reviewed":
+            errors.append(f"row {row_number}: review is not complete")
+
+        relevance = row["relevant_risk_news"]
+        if relevance not in {"true", "false"}:
+            errors.append(f"row {row_number}: relevance must be definitive")
+
+        company_relevance = row["company_relevance"]
+        allowed_company_values = set(self.COMPANY_RELEVANCE_VALUES)
+        if not self.require_company_relevance:
+            allowed_company_values.add("")
+        if company_relevance not in allowed_company_values:
+            qualifier = "" if self.require_company_relevance else "optional "
+            errors.append(
+                f"row {row_number}: invalid {qualifier}company_relevance"
+            )
+
+        proposed = self._pipe_set(row["proposed_risk_families"])
+        confirmed = self._pipe_set(row["confirmed_risk_families"])
+        if (proposed | confirmed) - self.families:
+            errors.append(f"row {row_number}: unknown risk family")
+        if not row["reviewer"] or not row["notes"]:
+            errors.append(f"row {row_number}: reviewer and notes are required")
+
+        if relevance == "true":
+            if not confirmed:
+                errors.append(f"row {row_number}: positive row has no confirmed family")
+            if self.require_positive_company_relevance and company_relevance != "true":
+                errors.append(
+                    f"row {row_number}: positive row must have company_relevance=true"
+                )
+            event_status = row["event_status"]
+            if self.require_positive_event_status:
+                if event_status not in self.EVENT_STATES:
+                    errors.append(
+                        f"row {row_number}: positive row has invalid event_status"
+                    )
+            elif event_status and event_status not in self.EVENT_STATES:
+                errors.append(f"row {row_number}: invalid optional event_status")
+            if row["noise_type"]:
+                errors.append(f"row {row_number}: positive row has noise_type")
+        elif relevance == "false":
+            if confirmed or row["event_status"]:
+                errors.append(
+                    f"row {row_number}: negative row has positive-only annotations"
+                )
+            if not row["noise_type"]:
+                errors.append(f"row {row_number}: negative row has no noise_type")
+        return errors
+
+    @staticmethod
+    def _pipe_set(value: str) -> set[str]:
+        return {item for item in value.split("|") if item}
+
+
 def read_review_csv(path: Path) -> list[dict]:
     with path.open(newline="", encoding="utf-8-sig") as stream:
         return [

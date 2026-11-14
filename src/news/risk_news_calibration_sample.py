@@ -8,6 +8,7 @@ from .risk_news_review_sheet import (
     REVIEW_FIELDS,
     REVIEW_SHEET_FIELDS,
     read_review_csv,
+    reviewer_slug,
 )
 
 
@@ -299,7 +300,4 @@ class RiskNewsCalibrationSampler:
 
     @staticmethod
     def _slug(value: str) -> str:
-        slug = "".join(character for character in value.casefold() if character.isalnum())
-        if not slug:
-            raise ValueError("Annotator name must contain at least one alphanumeric character")
-        return slug
+        return reviewer_slug(value)

@@ -1,0 +1,61 @@
+% Contenidos del capítulo.
+% Las secciones presentadas son orientativas.
+
+\section{Introducción}
+
+La gestión de riesgos constituye una actividad esencial para comprender la situación de una empresa y evaluar los factores que pueden afectar a su desempeño. Estos riesgos pueden evolucionar como consecuencia de cambios económicos, regulatorios, tecnológicos, competitivos u operativos. Por este motivo, su análisis no debe limitarse únicamente a identificar los riesgos declarados por una compañía en un momento determinado, sino que también debe considerar cómo cambian a lo largo del tiempo.
+
+En Estados Unidos, las empresas cotizadas presentan anualmente ante la \textit{Securities and Exchange Commission} (SEC) el formulario 10-K. Su apartado \textit{Item 1A. Risk Factors} recoge los principales factores de riesgo identificados por la propia compañía. La comparación de este apartado entre ejercicios consecutivos permite estudiar la evolución de dichos riesgos y detectar, entre otros cambios, la aparición de nuevos factores, la desaparición de riesgos anteriores y las modificaciones en el contenido o en el énfasis concedido a determinados asuntos.
+
+La literatura previa muestra que los cambios interanuales en los
+informes corporativos pueden contener información relevante sobre la
+evolución posterior de las empresas. En particular, Cohen et al.
+encuentran que las modificaciones localizadas en la sección de factores
+de riesgo resultan especialmente informativas sobre acontecimientos y
+resultados empresariales posteriores
+\cite{cohen_malloy_nguyen_lazy_prices}.
+
+Sin embargo, identificar diferencias textuales entre dos documentos no implica necesariamente que estas representen un cambio de riesgo relevante. Algunas variaciones pueden deberse a reformulaciones, reorganizaciones del documento o modificaciones de carácter formal. Por tanto, resulta necesario distinguir entre simples cambios de redacción y alteraciones que reflejen una evolución significativa en la exposición al riesgo de la empresa.
+
+Las noticias publicadas con posterioridad a cada informe constituyen una fuente externa que puede utilizarse para estudiar esta cuestión. Los acontecimientos recogidos en ellas pueden mostrar si los cambios detectados entre dos formularios 10-K guardan relación con riesgos que posteriormente adquieren relevancia pública. No obstante, esta correspondencia no debe interpretarse como una validación causal, sino como evidencia para evaluar la coherencia y utilidad de las variaciones identificadas.
+
+Esta aproximación guarda relación con la evidencia presentada por
+Cohen et al., quienes observan que parte de la información contenida
+en los cambios de los informes corporativos adquiere visibilidad
+posteriormente mediante noticias, acontecimientos empresariales o
+resultados financieros \cite{cohen_malloy_nguyen_lazy_prices}.
+
+Los avances recientes en procesamiento del lenguaje natural y, en particular, en modelos de lenguaje de gran tamaño (\textit{Large Language Models}, LLM), ofrecen nuevas posibilidades para comparar documentos extensos, interpretar cambios semánticos y relacionar información procedente de distintas fuentes. Su aplicación a este problema requiere, sin embargo, un procedimiento de evaluación que permita determinar si los cambios detectados son relevantes y si presentan correspondencia con acontecimientos posteriores.
+
+En este contexto, el presente Trabajo Fin de Máster estudia la detección automática de cambios en los factores de riesgo declarados en formularios 10-K consecutivos. Para evaluar la relevancia de los cambios identificados, estos se contrastan con una muestra de noticias publicadas posteriormente y anotadas manualmente. De este modo, se pretende analizar tanto la capacidad del sistema para identificar riesgos empresariales cambiantes como la utilidad de las noticias para evaluar la relevancia de dichas variaciones.
+
+\section{Motivación}
+
+Los riesgos a los que se enfrenta una empresa no permanecen constantes, sino que evolucionan como consecuencia de cambios en su actividad y en el entorno en el que opera. Sin embargo, el análisis de los factores de riesgo suele realizarse sobre documentos aislados, lo que proporciona una visión estática de la situación de la compañía. Comparar informes correspondientes a ejercicios consecutivos permite adoptar una perspectiva temporal y estudiar cómo cambia la percepción corporativa de los riesgos.
+
+El apartado \textit{Item 1A. Risk Factors} de los formularios 10-K contiene información especialmente relevante para este propósito. No obstante, estos apartados pueden ser extensos y presentar numerosas modificaciones entre ejercicios. La comparación manual requiere una dedicación considerable y dificulta el análisis sistemático de un conjunto amplio de empresas y periodos. Además, no todas las diferencias observadas tienen la misma importancia: algunas reflejan la aparición, desaparición o transformación de un riesgo, mientras que otras responden únicamente a cambios de redacción, reorganizaciones del contenido o actualizaciones formales.
+
+Las medidas convencionales de similitud textual permiten cuantificar
+el grado de variación entre documentos y han demostrado contener
+información relevante sobre la evolución posterior de las empresas
+\cite{cohen_malloy_nguyen_lazy_prices}. Sin embargo, estas medidas
+agregadas no permiten determinar por sí solas qué riesgo concreto ha
+cambiado ni si la variación detectada representa una modificación
+sustantiva o únicamente una reformulación. El problema requiere, por
+tanto, interpretar el significado de los cambios y distinguir las
+variaciones semánticamente relevantes de aquellas que no modifican
+sustancialmente el riesgo comunicado.
+
+A esta dificultad se añade la necesidad de evaluar si los cambios detectados poseen relevancia más allá del propio documento. La identificación de una variación entre dos informes no permite determinar por sí sola si esta guarda relación con acontecimientos que posteriormente afectan a la compañía. Las noticias publicadas después del formulario 10-K ofrecen una fuente externa y cronológicamente posterior con la que contrastar los resultados. Una muestra de noticias anotada manualmente permite estudiar de forma sistemática si los riesgos cambiantes identificados presentan correspondencia con hechos que posteriormente adquieren relevancia pública.
+
+Este contraste no pretende demostrar una relación causal entre la modificación del 10-K y los acontecimientos posteriores. Tampoco implica que la ausencia de noticias invalide un riesgo declarado, dado que muchos riesgos pueden no materializarse o no recibir cobertura periodística. Su finalidad es aportar una referencia externa que permita evaluar la coherencia y utilidad de los cambios detectados dentro de un proceso de inteligencia de riesgos.
+
+Los modelos de lenguaje de gran tamaño ofrecen capacidades para interpretar documentos extensos, comparar formulaciones semánticamente diferentes y relacionar información procedente de distintas fuentes. Sin embargo, también pueden producir interpretaciones inconsistentes, omitir información relevante o atribuir importancia a cambios meramente formales. Estas limitaciones hacen necesario evaluar sus resultados mediante criterios definidos y anotaciones humanas, en lugar de asumir que una comparación lingüísticamente plausible representa necesariamente un cambio de riesgo significativo.
+
+La motivación de este trabajo reside, por tanto, en estudiar si la combinación del análisis temporal de formularios 10-K y el contraste con noticias posteriores puede contribuir a identificar cambios relevantes en el perfil de riesgo de una empresa. El propósito no es sustituir el criterio de los analistas, sino explorar una herramienta que facilite la revisión de grandes volúmenes de información, priorice los cambios potencialmente significativos y proporcione evidencias trazables para su posterior evaluación.
+
+
+\section{Objetivos}
+
+
+\section{Organización de la memoria}

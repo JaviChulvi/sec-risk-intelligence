@@ -8,6 +8,7 @@ from pathlib import Path
 from .common import file_sha256, now_utc, write_bytes, write_json
 from .local_articles import read_normalized_articles
 from .risk_filter import RiskFamilyFilter
+from .risk_news_review_sheet import RiskNewsAnnotationValidator
 
 
 class RiskNewsDevelopmentMetricsBuilder:
@@ -36,7 +37,6 @@ class RiskNewsDevelopmentMetricsBuilder:
         "notes",
     }
     CONTENT_STATES = {"full", "partial", "summary_only", "missing", "invalid"}
-    EVENT_STATES = {"materialized", "exposure", "emerging"}
     NEW_REVIEW_REQUIRED_FIELDS = {
         "review_order",
         "selection_provenance",
@@ -64,6 +64,13 @@ class RiskNewsDevelopmentMetricsBuilder:
         self.risk_filter = RiskFamilyFilter(
             config["risk_rules"],
             config.get("risk_filter"),
+        )
+        self.annotation_validator = RiskNewsAnnotationValidator(
+            families=self.families,
+        )
+        self.revised_annotation_validator = RiskNewsAnnotationValidator(
+            families=self.families,
+            require_positive_event_status=False,
         )
 
     def build(
@@ -261,30 +268,7 @@ class RiskNewsDevelopmentMetricsBuilder:
                 errors.append(f"row {number}: match terms differ from acquisition metadata")
             if row["content_available"] not in self.CONTENT_STATES:
                 errors.append(f"row {number}: invalid content_available")
-            if row["review_status"] != "reviewed":
-                errors.append(f"row {number}: review is not complete")
-            relevance = row["relevant_risk_news"]
-            if relevance not in {"true", "false"}:
-                errors.append(f"row {number}: relevance must be definitive")
-            if row["company_relevance"] not in {"", "true", "false", "unclear"}:
-                errors.append(f"row {number}: invalid optional company_relevance")
-            confirmed = self._pipe_set(row["confirmed_risk_families"])
-            if (proposed | confirmed) - self.families:
-                errors.append(f"row {number}: unknown risk family")
-            if not row["reviewer"] or not row["notes"]:
-                errors.append(f"row {number}: reviewer and notes are required")
-            if relevance == "true":
-                if not confirmed:
-                    errors.append(f"row {number}: positive row has no confirmed family")
-                if row["event_status"] not in self.EVENT_STATES:
-                    errors.append(f"row {number}: positive row has invalid event_status")
-                if row["noise_type"]:
-                    errors.append(f"row {number}: positive row has noise_type")
-            elif relevance == "false":
-                if confirmed or row["event_status"]:
-                    errors.append(f"row {number}: negative row has positive-only annotations")
-                if not row["noise_type"]:
-                    errors.append(f"row {number}: negative row has no noise_type")
+            errors.extend(self.annotation_validator.errors(row, row_number=number))
         if orders != list(range(1, len(rows) + 1)):
             errors.append("review_order must be the consecutive sequence 1..N")
         if errors:
@@ -396,30 +380,9 @@ class RiskNewsDevelopmentMetricsBuilder:
                 repr(article.risk_match_terms)
             ):
                 errors.append(f"row {number}: match terms differ from revised filter")
-            if row["review_status"] != "reviewed":
-                errors.append(f"row {number}: review is not complete")
-            relevance = row["relevant_risk_news"]
-            if relevance not in {"true", "false"}:
-                errors.append(f"row {number}: relevance must be definitive")
-            if row["company_relevance"] not in {"", "true", "false", "unclear"}:
-                errors.append(f"row {number}: invalid optional company_relevance")
-            if row["event_status"] and row["event_status"] not in self.EVENT_STATES:
-                errors.append(f"row {number}: invalid optional event_status")
-            confirmed = self._pipe_set(row["confirmed_risk_families"])
-            if (proposed | confirmed) - self.families:
-                errors.append(f"row {number}: unknown risk family")
-            if not row["reviewer"] or not row["notes"]:
-                errors.append(f"row {number}: reviewer and notes are required")
-            if relevance == "true":
-                if not confirmed:
-                    errors.append(f"row {number}: positive row has no confirmed family")
-                if row["noise_type"]:
-                    errors.append(f"row {number}: positive row has noise_type")
-            elif relevance == "false":
-                if confirmed or row["event_status"]:
-                    errors.append(f"row {number}: negative row has positive-only annotations")
-                if not row["noise_type"]:
-                    errors.append(f"row {number}: negative row has no noise_type")
+            errors.extend(
+                self.revised_annotation_validator.errors(row, row_number=number)
+            )
         if seen != expected_keys:
             errors.append(
                 f"new-candidate set differs: {len(expected_keys - seen)} missing, "
