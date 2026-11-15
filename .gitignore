@@ -5,6 +5,7 @@ eval_runs/
 .pytest_cache/
 __pycache__/
 *.pyc
+.venv/
 .env
 .env.*
 !.env.example
