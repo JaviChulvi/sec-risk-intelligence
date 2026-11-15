@@ -400,36 +400,32 @@ Métricas útiles de validación:
 
 ```text
 .
+|-- AGENTS.md                 # Instrucciones para agentes
 |-- README.md
-|-- eval.json
+|-- pyproject.toml            # Dependencias y configuración de pruebas
+|-- uv.lock                   # Resolución de dependencias
+|-- eval.json                 # Evaluación de riesgos explícitos
 |-- hidden_risk_annual.discovery.json
-|-- pyproject.toml
-|-- requirements.txt
-|-- notebooks/
-|   |-- deepseek_risk_factor_eval.ipynb
-|   |-- deepseek_hidden_risk_annual_eval.ipynb
-|   `-- jpmorgan_latest_10k_risk_factor_prompt.ipynb
-|-- src/
-|   |-- data_extraction/
-|   |   |-- company_filings.py
-|   |   |-- sec_filings.py
-|   |   |-- edgar_crawler_adapter.py
-|   |   `-- edgar-crawler/
-|   |-- evals/
-|   |   |-- hidden_risk_annual.py
-|   |   `-- risk_factor_listing.py
-|   |-- llm/
-|   |   `-- deepseek.py
-|   |-- prompts/
-|   |   |-- hidden_risk_annual.py
-|   |   `-- risk_factor_listing.py
-|   |-- settings.py
-|   `-- tests/
-|       |-- test_hidden_risk_annual.py
-|       |-- test_llm_eval.py
-|       |-- test_sec_filings.py
-|       `-- test_edgar_crawler_adapter.py
+|-- config/                   # Configuraciones de adquisición y noticias
+|-- latex/                    # Fuentes y figuras de la memoria del TFM
+|-- news-calibration/         # Aplicación, muestra y anotaciones
+|-- notebooks/                # Exploración y evaluaciones
+|-- output/pdf/               # Documentos PDF del proyecto
+|-- papers/                   # Referencias de investigación
+|-- reports/                  # Informes y guías
+|-- scripts/                  # Generadores de documentos
+`-- src/
+    |-- data_extraction/      # Descarga y extracción de filings SEC
+    |-- evals/                # Evaluaciones
+    |-- features/             # Variables derivadas
+    |-- llm/                  # Cliente LLM
+    |-- news/                 # Pipeline y revisión de noticias
+    |-- prompts/              # Prompts de evaluación
+    |-- tests/                # Pruebas del proyecto
+    `-- text_analysis/        # Análisis del texto
 ```
+
+La aplicación de anotación se documenta en [news-calibration/README.md](news-calibration/README.md) y el pipeline de noticias en [src/news/README.md](src/news/README.md).
 
 ## Próximos Hitos
 
