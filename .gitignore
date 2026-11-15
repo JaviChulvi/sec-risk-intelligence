@@ -73,3 +73,6 @@ logs/
 # Los cuerpos y respuestas de noticias pueden estar sujetos a licencia.
 data/restricted/news/eodhd/
 data/processed/eodhd_mag7/
+
+# Archivos temporales locales
+/tmp/
