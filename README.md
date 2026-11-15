@@ -80,6 +80,20 @@ descargan filings en vivo.
 
 ## Instalación
 
+Para instalar el entorno completo con las versiones fijadas en `uv.lock`, usa
+Python 3.10 o superior y [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync --locked --all-extras --group dev
+```
+
+El comando crea `.venv` con las dependencias de extracción, notebooks, pruebas
+y generación de PDF. Ejecuta las pruebas con `uv run --locked --all-extras --group dev pytest -q`.
+Las versiones pueden variar entre plataformas o versiones de Python según los
+marcadores del lockfile. Tras cambiar dependencias, actualiza `uv.lock` con `uv lock`.
+
+Para una instalación mínima con pip también puedes usar:
+
 ```bash
 python3 -m pip install -e .
 ```

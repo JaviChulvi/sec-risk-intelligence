@@ -32,6 +32,13 @@ notebook = [
   "pandas",
 ]
 
+[dependency-groups]
+dev = [
+  "ipykernel",
+  "pytest",
+  "reportlab",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src*"]
