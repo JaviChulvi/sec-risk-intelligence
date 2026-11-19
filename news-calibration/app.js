@@ -229,10 +229,8 @@ $("review").addEventListener("submit", async event => {
   state.dirty = true; remember();
   try {
     await save();
-    const next = state.rows.findIndex((item, index) => index > state.index && item.review_status !== "reviewed");
-    const first = state.rows.findIndex(item => item.review_status !== "reviewed");
-    if (first === -1) { updateProgress(); notify("Muestra terminada y guardada. Puedes descargar tu CSV."); }
-    else await move(next === -1 ? first : next);
+    if (state.index < state.rows.length - 1) await move(state.index + 1);
+    else { updateProgress(); notify("Última noticia guardada. Puedes descargar tu CSV."); }
   } catch { /* The row and browser draft remain available to retry or download. */ }
 });
 $("defer").addEventListener("click", () => { draft(); move(Math.min(state.index + 1, state.rows.length - 1)); });
